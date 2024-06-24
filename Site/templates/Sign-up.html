@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sign up</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/sign-up.css') }}">
+        <script type="text/javascript" src="{{ url_for('static', filename='js/sign-up.js') }}"></script>
+        <script>
+            function formatarTelefone(input) {
+            // Obtém o valor atual do input
+            let valor = input.value;
+
+            // Remove tudo que não é número do valor atual
+            valor = valor.replace(/\D/g, "");
+
+            // Verifica se o valor possui mais de 11 caracteres para formatar como celular
+            if (valor.length > 12) {
+                valor = valor.replace(/^(\d{2})(\d{5})(\d{4}).*/, "($1) $2-$3");
+            } else {
+                valor = valor.replace(/^(\d{2})(\d{5})(\d{4}).*/, "($1) $2-$3");
+            }
+
+            // Atualiza o valor do input formatado
+            input.value = valor;
+            }
+            function formatarCPF() {
+                var cpf = document.getElementById("cpf");
+                var valor = cpf.value.replace(/\D/g, "");
+                var padrao = /^(\d{0,3})(\d{0,3})(\d{0,3})(\d{0,2})$/;
+                if (padrao.test(valor)) {
+                    cpf.value = RegExp.$1 + "." + RegExp.$2 + "." + RegExp.$3 + "-" + RegExp.$4;
+                } else {
+                    cpf.value = valor;
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div id="form">
+            <form action="/sign-up" method="post">
+                <h2>Sign up</h2>
+
+                <label>E-mail:</label>
+                <div>
+                    <input type="email" name="mail" id="mail" placeholder="xxxx.xxxx@gmail.com" maxlength="100" required>
+                </div>
+                <label>CPF:</label>
+                <div>
+                    <input type="text" name="cpf" id="cpf" placeholder="XXX.XXX.XXX-XX" required oninput="formatarCPF()" maxlength="14">
+                </div>
+                <label>Nome Completo:</label>
+                <div>
+                    <input type="text" name="nome" id="nome" placeholder="Hugo Silva de Araujo" required maxlength="45">
+                </div>
+                <label>Data de Nascimento:</label>
+                <div>
+                    <input type="date" name="nascimento" id="nascimento" required>
+                </div>
+                <label>Estado:</label>
+                <div>
+                    <select name="state" id="state" required>
+                        <option>AC</option>
+                        <option>AM</option>
+                        <option>RO</option>
+                        <option>RR</option>
+                        <option>PA</option>
+                        <option>AP</option>
+                        <option>TO</option>
+                        <option>MA</option>
+                        <option>PI</option>
+                        <option>BA</option>
+                        <option>CE</option>
+                        <option>RN</option>
+                        <option>PB</option>
+                        <option>PE</option>
+                        <option>AL</option>
+                        <option>SE</option>
+                        <option>MG</option>
+                        <option>SP</option>
+                        <option>ES</option>
+                        <option>RJ</option>
+                        <option>MT</option>
+                        <option>GO</option>
+                        <option>MS</option>
+                        <option>DF</option>
+                        <option>PR</option>
+                        <option>SC</option>
+                        <option>RS</option>
+                    </select>
+                </div>
+                <label>Cidade:</label>
+                <div>
+                    <input type="text" name="city" id="city" placeholder="Ceará-Mirim" required maxlength="45">
+                </div>
+                <label>Bairro:</label>
+                <div>
+                    <input type="text" name="district" id="district" placeholder="Nova Ceará-Mirim" required maxlength="45">
+                </div>
+                <label>Rua:</label>
+                <div>
+                    <input type="text" name="street" id="street" placeholder="Av. Principal" required maxlength="45">
+                </div>
+                <label>Número:</label>
+                <div>
+                    <input type="text" name="number" id="number" placeholder="XXX" required>
+                </div>
+                <label>Telefones para contato:</label>
+                <div id="camposExistentes">
+                    <input type="tel" name="phone" id="phone" placeholder="(XX) XXXXX-XXXX" required maxlength="15" oninput="formatarTelefone(this)">
+                </div>
+                <button type="button" id="adicionarCampo">Adicionar Telefone</button><br>
+                <label>Senha:</label>
+                <div>
+                    <input type="password" name="senha" id="senha" placeholder="*********" title="Minimo de 6 caracteres com pelo menos 1 letra e 1 número" pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$" required>
+                </div>
+                <div id="btn">
+                    <button type="submit">Concluir</button>
+                </div>
+            </form>
+        </div>
+        <script>
+            setTimeout(function() {
+                window.close();
+            }, 3000);
+        </script>
+    </body>
+</html>

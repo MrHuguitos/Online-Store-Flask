@@ -1,0 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@1,300&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans&display=swap");
+
+:root {
+    --primary-color: #191919;
+    --white: #FFFFFF;
+    --sidebar-primary: #353E47;
+    --sidebar-primary-hover: #353E47;
+    --sidebar-background: #070E13;
+    --background: #F1F3FF;
+    --text-link: #FFFFFF;
+    --headline: #CBD1D8;
+    --expand-button: #353E47;
+    --logout: #FA7575;
+}
+
+body {
+    background: #cfcfcf;
+    font-size: 16px;
+    padding: 16px;
+    height: 100%;
+    display: flex;
+}
+
+html {
+    height: 16px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.background {
+    display: flex;
+    overflow: hidden;
+    margin: auto;
+    border: 1px solid #ccc;
+    align-items: stretch;
+    max-width: 800px;
+    border-radius: 10px;
+    margin-top: 17vh;
+}
+
+.imagem {
+    flex: 1;
+}
+
+.imagem img{
+    display: block;
+    width: 450px;
+    height: 450px;
+    max-width: 450px;
+    max-height: 450px; 
+}
+
+p {
+    font-weight: bold;
+    font-family: 'Poppins', sans-serif;
+    line-height: 70px;
+}
+
+a {
+    color: white;
+    text-decoration: none;
+}
+
+h1 {
+    font-family: 'Poppins', sans-serif;
+    line-height: 70px;
+}
+
+label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.my-form {
+    flex: 1;
+    padding: 20px;
+    width: 400px;
+    box-sizing: border-box;
+    background-color: white;
+}
+.text-field-value {
+    margin-top: 90px;
+}
+.btn {
+    margin-top: 90px;
+}
+.quantity-input {
+    width: 40%;
+    height: 40px;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+    margin: 0 5px;
+}
+
+button {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(90deg, rgba(35,127,45,1) 0%, rgba(69,252,89,1) 50%, rgba(82,209,96,1) 100%);
+    width: 49%;
+    height: 40px;
+    border: none;
+    font-size: 0.9em;
+    color: #595757;
+    border-radius: 5px;
+    outline: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background: linear-gradient(90deg, rgba(82,209,96,1) 0%, rgba(69,252,89,1) 50%, rgba(35,127,45,1) 100%);
+}
+h2 {
+    color: rgb(86, 86, 255);
+}
+h6 {
+    visibility: hidden;
+}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sign up</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/log-in.css') }}">
+    </head>
+    <body>
+        <div id="form">
+            <form action="/log-in" method="post">
+                <h2>Sign up</h2>
+
+                <label>E-mail:</label>
+                <div>
+                    <input type="email" name="mail" id="mail" placeholder="xxxx.xxxx@gmail.com" maxlength="100" required>
+                </div>
+                <label>Senha:</label>
+                <div>
+                    <input type="password" name="senha" id="senha" placeholder="*********" title="Minimo de 6 caracteres com pelo menos 1 letra e 1 número" pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$" required>
+                </div>
+                <div id="btn">
+                    <button type="submit">Concluir</button>
+                </div>
+            </form>
+        </div>
+        <script>
+            var mensagem = "{{ mensagem }}";
+            if (mensagem) {
+                alert(mensagem);
+            }
+            setTimeout(function() {
+                window.close();
+            }, 3000);
+        </script>
+    </body>
+</html>
