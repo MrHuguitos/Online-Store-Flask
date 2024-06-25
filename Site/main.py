@@ -19,7 +19,7 @@ def corrigir_input(data): #Remoção de símbolos especiais de input
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-PER_PAGE = 8
+PER_PAGE = 8 #Quantidade de itens por página
 
 @app.route('/home') #Página Principal
 def home():
@@ -27,6 +27,39 @@ def home():
     offset = (page - 1) * PER_PAGE # Obtém os itens da página atual
 
     cursor.execute(f"SELECT nome, imagem, valor FROM produtos ORDER BY valor DESC LIMIT {PER_PAGE} OFFSET {offset};")
+    resultados = cursor.fetchall()
+
+    dados_produtos = []
+    for linha in resultados:
+        nome_produto = linha[0]
+        imagem_produto = linha[1]
+        valor_produto = linha[2]
+        valor_produto2 = str(valor_produto).replace('.', ',')
+        imagem_base64 = base64.b64encode(imagem_produto).decode('utf-8')
+
+        produtos = {"nome": nome_produto, "foto": imagem_base64, "valor": valor_produto2}
+        dados_produtos.append(produtos)
+
+    cursor.execute("SELECT COUNT(*) FROM produtos;")
+    result = cursor.fetchone()
+    total_produtos = result[0] if result else 0
+
+    pagination = Pagination(page=page, per_page=PER_PAGE, total=total_produtos, css_framework='bootstrap3') # Configuração da paginação
+
+    if 'user_id' not in session:
+        return render_template("principal.html", products=dados_produtos, pagination=pagination)
+    
+    cursor.execute("SELECT nome FROM cliente WHERE email = %s;", (session['user_id'],))
+    resultado = cursor.fetchone()
+    
+    return render_template("principal2.html", products=dados_produtos, pagination=pagination, user=resultado[0])
+
+@app.route('/home/<tipo>', methods=['GET']) #Página com os produtos de cada categoria
+def home_product(tipo):
+    page = request.args.get('page', 1, type=int) # Página atual (por padrão, será a primeira página)
+    offset = (page - 1) * PER_PAGE # Obtém os itens da página atual
+
+    cursor.execute("SELECT nome, imagem, valor FROM produtos WHERE categoria = %s ORDER BY valor DESC LIMIT %s OFFSET %s;", (tipo, PER_PAGE, offset))
     resultados = cursor.fetchall()
 
     dados_produtos = []
