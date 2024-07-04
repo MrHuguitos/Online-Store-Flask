@@ -13,6 +13,9 @@
     <div class="background">
         <form class="my-form" method="POST" action="{{ url_for('save_product', codigo=codigo2) }}">
             <div class="form-welcome-row">
+                <button type="button" class="voltar" onclick="window.history.back();">
+                    <i class="bx bx-chevron-left"></i>
+                </button>
                 <h1>{{ nome2 }}</h1>
                 <h5>{{ categoria2 }}</h5>
                 <h6>{{ codigo2 }}</h6>

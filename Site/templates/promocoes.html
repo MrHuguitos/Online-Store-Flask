@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Início</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/principal.css') }}">
+    <title>Promoções</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/promocoes.css') }}">
 </head>
 
 <body>
@@ -397,7 +397,9 @@
                 </figure>
                 <div class="article-preview">
                     <p class="read-product">{{ produto.nome }}</p>
-                    <p class="read-value">R$ {{ produto.valor }}</p>
+                    <p class="read-value-old"><s>R$ {{ produto.valor }}</s></p>
+                    <p class="read-desconto">-{{ produto.desconto }}%</p>
+                    <p class="read-value">R$ {{ produto.novo_valor }}</p>
                     <a href="{{ url_for('mostrar_produtos', nome=produto.nome) }}" class="btn">Detalhes</a>
                 </div>
             </article>

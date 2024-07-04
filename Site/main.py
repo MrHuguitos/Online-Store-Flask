@@ -4,90 +4,141 @@ import mysql.connector
 import base64
 import re
 import datetime
+from datetime import date
 
 banco = mysql.connector.connect(
-    host = "localhost",
-    user = "root",
-    password = "labhugo",
-    database = "farmdigital"
+    host="localhost",
+    user="root",
+    password="labhugo",
+    database="farmdigital"
 )
 cursor = banco.cursor()
 
-def corrigir_input(data): #Remoção de símbolos especiais de input
+def corrigir_input(data):  # Remoção de símbolos especiais de input
     return re.sub(r'\D', '', data)
+
+def corrigir_data(data): # Corrigir a data para o padrão DIA/MES/ANO
+    if isinstance(data, date):
+        data = data.strftime('%Y-%m-%d')
+        datas = data.split('-')
+
+        ano = datas[0]; mes = datas[1]; dia = datas[2]
+        data_corrigida = dia + '/' + mes + '/' + ano
+    
+    return data_corrigida
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-PER_PAGE = 8 #Quantidade de itens por página
+PER_PAGE = 8  # Quantidade de itens por página
 
-@app.route('/home') #Página Principal
+@app.route('/home')  # Página Principal
 def home():
-    page = request.args.get('page', 1, type=int) # Página atual (por padrão, será a primeira página)
-    offset = (page - 1) * PER_PAGE # Obtém os itens da página atual
+    page = request.args.get('page', 1, type=int)   # Página atual (por padrão, será a primeira página)
+    offset = (page - 1) * PER_PAGE  # Obtém os itens da página atual
 
-    cursor.execute(f"SELECT nome, imagem, valor FROM produtos ORDER BY valor DESC LIMIT {PER_PAGE} OFFSET {offset};")
+    cursor.execute("SELECT produtos.nome, produtos.imagem, produtos.valor FROM produtos LEFT JOIN promocao ON produtos.cod = promocao.cod_produtos WHERE promocao.cod_produtos IS NULL ORDER BY valor DESC LIMIT %s OFFSET %s;", (PER_PAGE, offset)) #Selecionar os valores da tabela produtos que NÃO tem correspondencia na tabela promocao
     resultados = cursor.fetchall()
 
     dados_produtos = []
     for linha in resultados:
         nome_produto = linha[0]
-        imagem_produto = linha[1]
-        valor_produto = linha[2]
-        valor_produto2 = str(valor_produto).replace('.', ',')
-        imagem_base64 = base64.b64encode(imagem_produto).decode('utf-8')
+        imagem_produto = base64.b64encode(linha[1]).decode('utf-8')
+        valor_produto = str(linha[2]).replace('.', ',')
 
-        produtos = {"nome": nome_produto, "foto": imagem_base64, "valor": valor_produto2}
+        produtos = {"nome": nome_produto,
+                    "foto": imagem_produto, 
+                    "valor": valor_produto}
+        
         dados_produtos.append(produtos)
 
     cursor.execute("SELECT COUNT(*) FROM produtos;")
     result = cursor.fetchone()
     total_produtos = result[0] if result else 0
 
-    pagination = Pagination(page=page, per_page=PER_PAGE, total=total_produtos, css_framework='bootstrap3') # Configuração da paginação
+    pagination = Pagination(page=page, per_page=PER_PAGE, total=total_produtos, css_framework='bootstrap3')  # Configuração da paginação
 
     if 'user_id' not in session:
         return render_template("principal.html", products=dados_produtos, pagination=pagination)
-    
+
     cursor.execute("SELECT nome FROM cliente WHERE email = %s;", (session['user_id'],))
     resultado = cursor.fetchone()
-    
-    return render_template("principal2.html", products=dados_produtos, pagination=pagination, user=resultado[0])
 
-@app.route('/home/<tipo>', methods=['GET']) #Página com os produtos de cada categoria
+    return render_template("principal.html", products=dados_produtos, pagination=pagination, user=resultado[0], usuario=session['user_id'])
+
+@app.route('/home/<tipo>', methods=['GET'])   # Página com os produtos de cada categoria
 def home_product(tipo):
-    page = request.args.get('page', 1, type=int) # Página atual (por padrão, será a primeira página)
-    offset = (page - 1) * PER_PAGE # Obtém os itens da página atual
+    page = request.args.get('page', 1, type=int)   # Página atual (por padrão, será a primeira página)
+    offset = (page - 1) * PER_PAGE  # Obtém os itens da página atual
 
-    cursor.execute("SELECT nome, imagem, valor FROM produtos WHERE categoria = %s ORDER BY valor DESC LIMIT %s OFFSET %s;", (tipo, PER_PAGE, offset))
+    cursor.execute("SELECT nome, imagem, valor FROM produtos LEFT JOIN promocao ON produtos.cod = promocao.cod_produtos WHERE promocao.cod_produtos IS NULL AND categoria = %s ORDER BY valor DESC LIMIT %s OFFSET %s;", (tipo, PER_PAGE, offset))
     resultados = cursor.fetchall()
 
     dados_produtos = []
     for linha in resultados:
         nome_produto = linha[0]
-        imagem_produto = linha[1]
-        valor_produto = linha[2]
-        valor_produto2 = str(valor_produto).replace('.', ',')
-        imagem_base64 = base64.b64encode(imagem_produto).decode('utf-8')
+        imagem_produto = base64.b64encode(linha[1]).decode('utf-8')
+        valor_produto = str(linha[2]).replace('.', ',')
 
-        produtos = {"nome": nome_produto, "foto": imagem_base64, "valor": valor_produto2}
+        produtos = {"nome": nome_produto,
+                    "foto": imagem_produto, 
+                    "valor": valor_produto}
+        
         dados_produtos.append(produtos)
 
-    cursor.execute("SELECT COUNT(*) FROM produtos;")
+    cursor.execute("SELECT COUNT(*) FROM produtos WHERE categoria = %s;", (tipo, ))
     result = cursor.fetchone()
     total_produtos = result[0] if result else 0
 
-    pagination = Pagination(page=page, per_page=PER_PAGE, total=total_produtos, css_framework='bootstrap3') # Configuração da paginação
+    pagination = Pagination(page=page, per_page=PER_PAGE, total=total_produtos, css_framework='bootstrap3')  # Configuração da paginação
 
     if 'user_id' not in session:
         return render_template("principal.html", products=dados_produtos, pagination=pagination)
-    
+
     cursor.execute("SELECT nome FROM cliente WHERE email = %s;", (session['user_id'],))
     resultado = cursor.fetchone()
-    
-    return render_template("principal2.html", products=dados_produtos, pagination=pagination, user=resultado[0])
 
-@app.route('/sign-up', methods=['GET', 'POST']) #Cadastro de usuários
+    return render_template("principal.html", products=dados_produtos, pagination=pagination, user=resultado[0], usuario=session['user_id'])
+
+@app.route('/promocoes', methods=['GET'])   # Página com as promoções
+def promocoes():
+    page = request.args.get('page', 1, type=int)   # Página atual (por padrão, será a primeira página)
+    offset = (page - 1) * PER_PAGE  # Obtém os itens da página atual
+
+    cursor.execute("SELECT produtos.nome, produtos.imagem, produtos.valor, promocao.desconto FROM produtos, promocao WHERE produtos.cod = promocao.cod_produtos ORDER BY valor DESC LIMIT %s OFFSET %s;", (PER_PAGE, offset)) #Selecionar os valores da tabela produtos que TEM correspondencia na tabela promocao
+    resultados = cursor.fetchall()
+
+    dados_produtos = []
+    for linha in resultados:
+        nome_produto = linha[0]
+        imagem_produto = base64.b64encode(linha[1]).decode('utf-8')
+        valor_produto = str(linha[2]).replace('.', ',')
+        desconto = str("{:.0f}".format(linha[3] * 100))
+        valor_desconto = str("{:.2f}".format(linha[2] * (1 - linha[3]))).replace('.', ',')
+
+        produtos = {"nome": nome_produto,
+                    "foto": imagem_produto, 
+                    "valor": valor_produto,
+                    "desconto": desconto,
+                    "novo_valor": valor_desconto}
+        
+        dados_produtos.append(produtos)
+
+    cursor.execute("SELECT COUNT(*) FROM produtos, promocao WHERE produtos.cod = promocao.cod_produtos;")
+    result = cursor.fetchone()
+    total_produtos = result[0] if result else 0
+
+    pagination = Pagination(page=page, per_page=PER_PAGE, total=total_produtos, css_framework='bootstrap3')  # Configuração da paginação
+
+    if 'user_id' not in session:
+        return render_template("promocoes.html", products=dados_produtos, pagination=pagination)
+
+    cursor.execute("SELECT nome FROM cliente WHERE email = %s;", (session['user_id'],))
+    resultado = cursor.fetchone()
+
+    return render_template("promocoes.html", products=dados_produtos, pagination=pagination, user=resultado[0], usuario=session['user_id'])
+
+@app.route('/sign-up', methods=['GET', 'POST'])  # Cadastro de usuários
 def cadastro():
     if request.method == 'POST':
         email = request.form['mail']
@@ -105,7 +156,7 @@ def cadastro():
         cursor.execute("SELECT email, cpf FROM cliente WHERE email = %s OR cpf = %s;", (email, cpf))
         linha = cursor.fetchone()
 
-        if linha is not None: 
+        if linha is not None:
             return redirect(url_for('home'))
         else:
             cursor.execute("INSERT INTO cliente VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", (email, cpf, senha, nome, estado, cidade, bairro, rua, numero, nascimento))
@@ -114,11 +165,11 @@ def cadastro():
                 i2 = corrigir_input(i)
                 cursor.execute("INSERT INTO contato_cliente VALUES (%s, %s);", (i2, email))
                 banco.commit()
-            return redirect(url_for('home'))   
+            return redirect(url_for('home'))
     else:
-        return render_template("Sign-up.html")
+        return render_template("sign-up.html")
 
-@app.route('/log-in', methods=['GET', 'POST']) #Login do usuário
+@app.route('/log-in', methods=['GET', 'POST'])  # Login do usuário
 def login():
     if request.method == 'POST':
         email = request.form['mail']
@@ -128,56 +179,81 @@ def login():
         linha = cursor.fetchone()
 
         if linha is not None:
-            session['user_id'] = linha[0] 
+            session['user_id'] = linha[0]
             return redirect(url_for('home'))
         else:
-            return render_template("Log-in.html", mensagem="Parece que não existe um usuário com essas credenciais. Confira seus dados e tente novamente!")   
+            return render_template("log-in.html", mensagem="Parece que não existe um usuário com essas credenciais. Confira seus dados e tente novamente!")
     else:
-        return render_template("Log-in.html")
+        return render_template("log-in.html")
 
-@app.route('/log-out') #Logout do usuário
+@app.route('/log-out')  # Logout do usuário
 def logout():
     session.pop('user_id', None)
     return redirect(url_for('home'))
 
-@app.route('/produto/<nome>', methods=['GET']) #Produto
+@app.route('/produto/<nome>', methods=['GET'])  # Produto
 def mostrar_produtos(nome):
-    cursor.execute("SELECT nome, valor, quantidade, categoria, imagem, cod FROM produtos WHERE nome = %s;", (nome,))
-
+    cursor.execute("SELECT produtos.nome, produtos.valor, produtos.quantidade, produtos.categoria, produtos.imagem, produtos.cod, promocao.desconto FROM produtos, promocao WHERE promocao.cod_produtos = produtos.cod AND produtos.nome = %s", (nome, ))
     linha = cursor.fetchone()
 
-    nome_prod = linha[0]
-    valor_prod = str(linha[1]).replace('.', ',')
-    quantidade_prod = linha[2]
-    categoria_prod = linha[3]
-    foto_prod = base64.b64encode(linha[4]).decode('utf-8') #Converter os dados binários em uma imagem
-    cod_prod = linha[5]
+    if linha:
+        nome_prod = linha[0]
+        valor_prod = str("{:.2f}".format(linha[1] * (1 - linha[6]))).replace('.', ',')
+        quantidade_prod = linha[2]
+        categoria_prod = linha[3]
+        foto_prod = base64.b64encode(linha[4]).decode('utf-8') # Converter os dados binários em uma imagem
+        cod_prod = linha[5]
 
-    return render_template("produto.html", nome2 = nome_prod, valor2 = valor_prod, quantidade2 = quantidade_prod, categoria2 = categoria_prod, foto2 = foto_prod, codigo2 = cod_prod)
+        return render_template("produto.html", nome2=nome_prod, valor2=valor_prod, quantidade2=quantidade_prod, categoria2=categoria_prod, foto2=foto_prod, codigo2=cod_prod)
+    else:
+        cursor.execute("SELECT nome, valor, quantidade, categoria, imagem, cod FROM produtos WHERE nome = %s;", (nome,))
+        linha = cursor.fetchone()
 
-@app.route('/produto', methods=['GET', 'POST']) #Produto pesquisado
+        nome_prod = linha[0]
+        valor_prod = str(linha[1]).replace('.', ',')
+        quantidade_prod = linha[2]
+        categoria_prod = linha[3]
+        foto_prod = base64.b64encode(linha[4]).decode('utf-8') # Converter os dados binários em uma imagem
+        cod_prod = linha[5]
+
+        return render_template("produto.html", nome2=nome_prod, valor2=valor_prod, quantidade2=quantidade_prod, categoria2=categoria_prod, foto2=foto_prod, codigo2=cod_prod)
+
+@app.route('/produto', methods=['GET', 'POST'])  # Produto pesquisado
 def mostrar_produto_pesquisado():
     if request.method == 'POST':
         nomeproduto = request.form['search']
-        cursor.execute("SELECT nome, valor, quantidade, categoria, imagem, cod FROM produtos WHERE nome = %s;", (nomeproduto,))
 
+        cursor.execute("SELECT produtos.nome, produtos.valor, produtos.quantidade, produtos.categoria, produtos.imagem, produtos.cod, promocao.desconto FROM produtos, promocao WHERE promocao.cod_produtos = produtos.cod AND produtos.nome = %s", (nomeproduto, ))
         linha = cursor.fetchone()
 
-        if linha:
+        if linha is not None:
             nome_prod = linha[0]
-            valor_prod = str(linha[1]).replace('.', ',')
+            valor_prod = str("{:.2f}".format(linha[1] * (1 - linha[6]))).replace('.', ',')
             quantidade_prod = linha[2]
             categoria_prod = linha[3]
-            foto_prod = base64.b64encode(linha[4]).decode('utf-8') #Converter os dados binários em uma imagem
+            foto_prod = base64.b64encode(linha[4]).decode('utf-8') # Converter os dados binários em uma imagem
             cod_prod = linha[5]
 
-            return render_template("produto.html", nome2 = nome_prod, valor2 = valor_prod, quantidade2 = quantidade_prod, categoria2 = categoria_prod, foto2 = foto_prod, codigo2 = cod_prod)
-        else:
-            return redirect(url_for('home'))
-    else:
-        return render_template("produto.html", nome2 = "", valor2 = "", quantidade2 = "", categoria2 = "", foto2 = "", codigo2 = "")
+            return render_template("produto.html", nome2=nome_prod, valor2=valor_prod, quantidade2=quantidade_prod, categoria2=categoria_prod, foto2=foto_prod, codigo2=cod_prod)
+        elif linha is None:
+            cursor.execute("SELECT nome, valor, quantidade, categoria, imagem, cod FROM produtos WHERE nome = %s;", (nomeproduto,))
+            linha = cursor.fetchone()
 
-@app.route('/save-product/<codigo>', methods=['POST']) #Salvar o produto no carrinho
+            if linha is not None:
+                nome_prod = linha[0]
+                valor_prod = str(linha[1]).replace('.', ',')
+                quantidade_prod = linha[2]
+                categoria_prod = linha[3]
+                foto_prod = base64.b64encode(linha[4]).decode('utf-8') # Converter os dados binários em uma imagem
+                cod_prod = linha[5]
+
+                return render_template("produto.html", nome2=nome_prod, valor2=valor_prod, quantidade2=quantidade_prod, categoria2=categoria_prod, foto2=foto_prod, codigo2=cod_prod)
+            else:
+                return redirect(url_for('home'))
+    else:
+        return render_template("produto.html", nome2="", valor2="", quantidade2="", categoria2="", foto2="", codigo2="")
+
+@app.route('/save-product/<codigo>', methods=['POST'])   # Salvar o produto no carrinho
 def save_product(codigo):
     if 'user_id' not in session:
         return redirect(url_for('login'))
@@ -190,18 +266,37 @@ def save_product(codigo):
 
     return redirect(url_for('home'))
 
-@app.route('/carrinho', methods=['GET']) #Verificar carrinho
+@app.route('/carrinho', methods=['GET'])  # Verificar carrinho
 def carrinho():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    
+
     user_id = session['user_id']
-
-    cursor.execute("SELECT produtos.nome, produtos.cod, produtos.imagem, produtos.valor, carrinho.quantidade FROM produtos, carrinho WHERE carrinho.cod_produtos = produtos.cod AND carrinho.email_cliente = %s;", (user_id,))
-    resultados = cursor.fetchall()
-
     dados_carrinho = []
     total = 0
+
+    cursor.execute("SELECT produtos.nome, produtos.cod, produtos.imagem, produtos.valor, carrinho.quantidade, promocao.desconto FROM produtos, carrinho, promocao WHERE carrinho.cod_produtos = produtos.cod AND promocao.cod_produtos = produtos.cod AND carrinho.email_cliente = %s;", (user_id,))
+    resultados = cursor.fetchall()
+
+    if resultados is not None:
+        for linha in resultados:
+            nome_produto = linha[0]
+            cod_produto = linha[1]
+            imagem_produto = base64.b64encode(linha[2]).decode('utf-8')
+            valor_produto = str("{:.2f}".format(linha[3] * (1 - linha[5]))).replace('.', ',')
+            quant_produto = linha[4]
+            total += ((linha[3] * (1 - linha[5])) * linha[4])
+
+            produtos = {"nome": nome_produto, 
+                        "codigo": cod_produto,
+                        "foto": imagem_produto, 
+                        "valor": valor_produto, 
+                        "quantidade": quant_produto}
+        
+            dados_carrinho.append(produtos)
+    
+    cursor.execute("SELECT produtos.nome, produtos.cod, produtos.imagem, produtos.valor, carrinho.quantidade FROM produtos JOIN carrinho ON carrinho.cod_produtos = produtos.cod LEFT JOIN promocao ON promocao.cod_produtos = produtos.cod WHERE carrinho.email_cliente = %s AND promocao.cod_produtos IS NULL;", (user_id,)) #Unir as tabelas produtos e carrinho em uma só e aplicar o left join para retirar os valores que possuem correspondencia na tabela promocao
+    resultados = cursor.fetchall()
 
     for linha in resultados:
         nome_produto = linha[0]
@@ -211,12 +306,17 @@ def carrinho():
         quant_produto = linha[4]
         total += (linha[3] * linha[4])
 
-        produtos = {"nome": nome_produto, "codigo": cod_produto, "foto": imagem_produto, "valor": valor_produto, "quantidade": quant_produto}
+        produtos = {"nome": nome_produto, 
+                    "codigo": cod_produto,
+                    "foto": imagem_produto, 
+                    "valor": valor_produto, 
+                    "quantidade": quant_produto}
+        
         dados_carrinho.append(produtos)
 
-    return render_template("Carrinho.html", products=dados_carrinho, total=str(total).replace('.', ','))
+    return render_template("carrinho.html", products=dados_carrinho, total=str(total).replace('.', ','))
 
-@app.route('/update-quantity', methods=['POST']) #Atualizar quantidade de produtos no carrinho
+@app.route('/update-quantity', methods=['POST'])   # Atualizar quantidade de produtos no carrinho
 def update_quantity():
     if 'user_id' not in session:
         return jsonify({'error': 'Not logged in'}), 401
@@ -231,7 +331,7 @@ def update_quantity():
 
     return jsonify({'success': True, 'new_quantity': new_quantity}), 200
 
-@app.route('/comprar', methods=['POST']) #Realizar compra
+@app.route('/comprar', methods=['POST'])  # Realizar compra
 def comprar():
     codigos = request.form.getlist('codigos')
     user_id = session['user_id']
@@ -239,10 +339,21 @@ def comprar():
     hoje = datetime.date.today()
 
     for i in codigos:
-        cursor.execute("SELECT produtos.valor, carrinho.quantidade, produtos.quantidade FROM produtos, carrinho WHERE carrinho.cod_produtos = produtos.cod AND carrinho.email_cliente = %s AND produtos.cod = %s;", (user_id, i))
+        cursor.execute("SELECT produtos.valor, carrinho.quantidade, produtos.quantidade, promocao.desconto FROM produtos, carrinho, promocao WHERE produtos.cod = promocao.cod_produtos AND promocao.cod_produtos = carrinho.cod_produtos AND carrinho.cod_produtos = %s AND carrinho.email_cliente = %s;", (i, user_id))
         linha = cursor.fetchone()
 
         if linha:
+            valor_total = float("{:.2f}".format(linha[0] * (1 - linha[3]))) * linha[1]
+            estoque = linha[2] - linha[1]
+
+            cursor.execute("INSERT INTO compra(email_cliente, cod_produtos, valor, data) VALUES (%s, %s, %s, %s);", (user_id, i, valor_total, hoje))
+            cursor.execute("DELETE FROM carrinho WHERE cod_produtos = %s AND email_cliente = %s;", (i, user_id))
+            cursor.execute("UPDATE produtos SET quantidade = %s WHERE cod = %s;", (estoque, i))
+            banco.commit()
+        else:
+            cursor.execute("SELECT produtos.valor, carrinho.quantidade, produtos.quantidade FROM produtos JOIN carrinho ON carrinho.cod_produtos = produtos.cod LEFT JOIN promocao ON promocao.cod_produtos = produtos.cod WHERE carrinho.cod_produtos = %s AND carrinho.email_cliente = %s AND promocao.cod_produtos IS NULL;", (i, user_id))
+            linha = cursor.fetchone()
+
             valor_total = linha[0] * linha[1]
             estoque = linha[2] - linha[1]
 
@@ -252,6 +363,35 @@ def comprar():
             banco.commit()
 
     return redirect(url_for('home'))
+
+@app.route('/comprados', methods=['GET'])   # Verificar compras feitas
+def comprados():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+
+    cursor.execute("SELECT produtos.nome, produtos.cod, produtos.imagem, compra.valor, compra.data FROM produtos, compra WHERE compra.cod_produtos = produtos.cod AND compra.email_cliente = %s ORDER BY compra.cod_compra DESC;", (user_id,))
+    resultados = cursor.fetchall()
+
+    dados_compra = []
+
+    for linha in resultados:
+        nome_produto = linha[0]
+        cod_produto = linha[1]
+        imagem_produto = base64.b64encode(linha[2]).decode('utf-8')
+        valor_compra = str(linha[3]).replace('.', ',')
+        data_compra = corrigir_data(linha[4])
+
+        produtos = {"nome": nome_produto, 
+                    "codigo": cod_produto,
+                    "foto": imagem_produto, 
+                    "valor": valor_compra, 
+                    "data": data_compra}
+        
+        dados_compra.append(produtos)
+
+    return render_template("compras.html", products=dados_compra)
 
 if __name__ == "__main__":
     app.run(debug=True)

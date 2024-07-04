@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas compras</title>
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/compras.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="carrinho">
+        <div class="cabecalho-carrinho">
+            <button onclick="window.history.back();">
+                <i class="bx bx-chevron-left"></i>
+            </button>
+            <h3>Minhas Compras</h3>
+        </div>
+        <ul>
+            {% for produto in products %}
+            <li class="carrinho-item">
+                <div class="imagem">
+                    <img src="data:image/jpeg;base64,{{ produto.foto }}" alt="Foto do Produto">
+                </div>
+                <div class="info">
+                    <h4>{{ produto.nome }}</h4>
+                    <div class="detalhes">
+                        <div class="codigo">
+                            <input type="hidden" name="codigos" value="{{ produto.codigo }}">
+                        </div>
+                    </div>
+                    <div class="preco">
+                        <p>Valor total: R$ {{ produto.valor }}</p>
+                        <div class="contador">
+                            <span>Comprado em: {{ produto.data }}</span>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+
+</html>

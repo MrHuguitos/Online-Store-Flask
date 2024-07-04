@@ -325,7 +325,7 @@ span {
     }
 }
 /* Cards */
-.teste {
+.cards {
     position: absolute;
     top: calc(var(--navbar-height) + 1%); /* Coloca a div abaixo do menu dropdown */
     left: 0;

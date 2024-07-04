@@ -325,7 +325,7 @@ span {
     }
 }
 /* Cards */
-.teste {
+.cards {
     position: absolute;
     top: calc(var(--navbar-height) + 1%); /* Coloca a div abaixo do menu dropdown */
     left: 0;
@@ -431,7 +431,7 @@ p {
     display: inline-block;
     text-align: center;
     text-decoration: none;
-    margin-top: 40px;
+    margin-top: 27px;
     margin-left: 25%;
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(90deg, rgba(35,127,45,1) 0%, rgba(69,252,89,1) 50%, rgba(82,209,96,1) 100%);
@@ -450,7 +450,7 @@ p {
 }
 
 .read-value {
-    margin-top: 40px;
+    margin-top: 18px;
     font-size: 20px;
 }
 
@@ -458,4 +458,15 @@ p {
     font-size: 25px;
     font-family: "Source Code Pro", monospace;
     font-weight: bold;
+}
+
+.read-value-old {
+    color: rgb(250, 99, 99);
+    margin-top: 10px;
+    font-size: 15px;
+}
+
+.read-desconto{
+    margin-top: 10px;
+    font-size: 15px;
 }

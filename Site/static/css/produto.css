@@ -88,22 +88,24 @@ label {
     margin-top: 90px;
 }
 .btn {
-    margin-top: 90px;
+    margin-top: 70px;
+    height: 40px;
+    display: flex;
 }
 .quantity-input {
-    width: 40%;
-    height: 40px;
-    border-radius: 10px;
+    width: 50%;
+    height: 100%;
+    border-radius: 5px;
     text-align: center;
-    border: 1px solid #ddd;
+    border: 1px solid #6b6b6b;
     margin: 0 5px;
 }
 
 button {
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(90deg, rgba(35,127,45,1) 0%, rgba(69,252,89,1) 50%, rgba(82,209,96,1) 100%);
-    width: 49%;
-    height: 40px;
+    width: 45%;
+    height: 100%;
     border: none;
     font-size: 0.9em;
     color: #595757;
@@ -120,4 +122,21 @@ h2 {
 }
 h6 {
     visibility: hidden;
+}
+
+button[type="button"] {
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    font-size: 2rem;
+    background: #ddddda50;
+    color: var(--cor_primaria);
+    border: 2px solid #ddddda;
+    border-radius: 8px;
+    line-height: 50%;
+    transition: .4s;
+}
+
+button[type="button"]:hover {
+    background: linear-gradient(90deg, rgba(35,127,45,1) 0%, rgba(69,252,89,1) 50%, rgba(82,209,96,1) 100%);
 }
