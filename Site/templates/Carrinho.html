@@ -11,6 +11,19 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <script type="text/javascript" src="{{ url_for('static', filename='js/carrinho.js') }}"></script>
+    <script>
+        function formatarCPF() {
+            var cpf = document.getElementById("cpf");
+            var valor = cpf.value.replace(/\D/g, "");
+            var padrao = /^(\d{0,3})(\d{0,3})(\d{0,3})(\d{0,2})$/;
+
+            if (padrao.test(valor)) {
+                cpf.value = RegExp.$1 + "." + RegExp.$2 + "." + RegExp.$3 + "-" + RegExp.$4;
+            } else {
+                cpf.value = valor;
+            }
+        }
+    </script>
 </head>
 
 <body>
@@ -47,9 +60,30 @@
                     </li>
                 {% endfor %}
             </ul>
-            <button type="submit" class="pagar">Pagar R$ {{ total }}</button>
+            <button type="button" class="pagar">Pagar R$ {{ total }}</button>
+            <dialog>
+                <h2>Confirme seus dados</h2>
+                <div class="input">
+                    <label>CPF:</label>
+                    <input type="text" name="cpf" id="cpf" placeholder="XXX.XXX.XXX-XX" required oninput="formatarCPF()" maxlength="14">
+                </div>
+                <div class="input">
+                    <label>Senha:</label>
+                    <input type="password" name="senha" id="senha" placeholder="*********" title="Minimo de 6 caracteres com pelo menos 1 letra e 1 número" pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$" required>
+                </div>
+                <div class="button-center">
+                    <button type="submit" class="confirmar">Confirmar</button>
+                    <button type="button" class="fechar">Cancelar</button>
+                </div>
+            </dialog>
         </div>
     </form>
+    <script>
+        var mensagem = "{{ mensagem }}";
+        if (mensagem) {
+            alert(mensagem);
+        }
+    </script>
 </body>
 
 </html>

@@ -57,4 +57,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Initial calculation of the total
     updateTotal();
+
+    // Abrir e fechar o dialog de confirmação de dados
+    const button = document.querySelector(".pagar")
+    const modal = document.querySelector("dialog")
+    const buttonClose = document.querySelector(".fechar")
+
+    button.onclick = function() {
+        modal.showModal()
+    }
+    buttonClose.onclick = function() {
+        modal.close()
+    }
 });
