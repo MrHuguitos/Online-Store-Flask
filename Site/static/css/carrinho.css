@@ -9,7 +9,7 @@
 }
 
 :root {
-    --cor_primaria: #9800ce;
+    --cor_primaria: #22ce00;
     --cor_secundaria: #2a2f43ea;
     --cor_fundo: #f5f5f5;
 }
@@ -181,7 +181,7 @@ dialog input {
     color: #000000;
     width: 90%;
     border: 2px black solid;
-    border-radius: 22px;
+    border-radius: 8px;
     min-width: 280px;
     padding: 5px;
 }
@@ -197,6 +197,10 @@ dialog .input {
     align-items: center;
     width: 100%;
     gap: 5px;
+}
+
+form {
+    box-shadow: 0px 4px 16px rgb(0 0 0 / .3);
 }
 
 dialog button {

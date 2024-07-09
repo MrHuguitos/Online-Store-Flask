@@ -1,11 +1,15 @@
-{% if promo %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Promoções</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/promocoes.css') }}">
+    {% if promo %}
+        <title>Promoções</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/promocoes.css') }}">
+    {% else %}
+        <title>Início</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/principal.css') }}">
+    {% endif %}
 </head>
 <body>
     <header class="menu__wrapper">
@@ -387,6 +391,7 @@
         </button>
         {% endif %}
     </header>
+    {% if promo %}
     <div class="cards">
         <div class="articles">
             {% for produto in products %}
@@ -410,397 +415,7 @@
         </div>
         {% endif %}
     </div>
-</body>
-</html>
-{% else %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Início</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/principal.css') }}">
-</head>
-<body>
-    <header class="menu__wrapper">
-        {% if user %}
-        <div class="menu__bar">
-            <a href="{{ url_for('home') }}" title="Home" aria-label="home" class="logo">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48px" height="48px" viewBox="0 0 24 24"
-                    style="fill: rgba(0, 0, 0, 1);">
-                    <path
-                        d="M12 16.114c-3.998-5.951-8.574-7.043-8.78-7.09L2 8.75V10c0 7.29 3.925 12 10 12 5.981 0 10-4.822 10-12V8.75l-1.22.274c-.206.047-4.782 1.139-8.78 7.09z">
-                    </path>
-                    <path
-                        d="M11.274 3.767c-1.799 1.898-2.84 3.775-3.443 5.295 1.329.784 2.781 1.943 4.159 3.685 1.364-1.76 2.826-2.925 4.17-3.709-.605-1.515-1.646-3.383-3.435-5.271L12 3l-.726.767z">
-                    </path>
-                </svg>
-                <span class="hide">PharmaEssence</span>
-            </a>
-            <nav>
-                <ul class="navigation hide">
-                    <li>
-                        <button>
-                            Produtos
-                            <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16">
-                                <path
-                                    d="M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z">
-                                </path>
-                            </svg>
-                        </button>
-                        <div class="dropdown__wrapper">
-                            <div class="dropdown">
-                                <ul class="list-items-with-description">
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
-                                            <path
-                                                d="M8.434 20.566c1.335 0 2.591-.52 3.535-1.464l7.134-7.133a5.008 5.008 0 0 0-.001-7.072 4.969 4.969 0 0 0-3.536-1.463c-1.335 0-2.59.52-3.534 1.464l-7.134 7.133a5.01 5.01 0 0 0-.001 7.072 4.971 4.971 0 0 0 3.537 1.463zm5.011-14.254a2.979 2.979 0 0 1 2.12-.878c.802 0 1.556.312 2.122.878a3.004 3.004 0 0 1 .001 4.243l-2.893 2.892-4.242-4.244 2.892-2.891z">
-                                            </path>
-                                        </svg>
-                                        <a href="{{ url_for('home_product', tipo='medicamentos') }}"
-                                            style="text-decoration: none;">
-                                            <div class="item-title">
-                                                <h3>Medicamentos</h3>
-                                                <p>Remédios e produtos para sua melhora</p>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
-                                            <path
-                                                d="M17.168 8H13l.806-4.835A1 1 0 0 0 12.819 2H7.667a1 1 0 0 0-.986.835l-1.667 10A1 1 0 0 0 6 14h4v8l8.01-12.459A1 1 0 0 0 17.168 8z">
-                                            </path>
-                                        </svg>
-                                        <a href="{{ url_for('home_product', tipo='vitaminas e suplementos') }}"
-                                            style="text-decoration: none;">
-                                            <div class="item-title">
-                                                <h3>Vitaminas e Suplementos</h3>
-                                                <p>Produtos para manter sua saúde</p>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
-                                            <path
-                                                d="M21 10H7V7.113c0-.997.678-1.923 1.661-2.085A2.003 2.003 0 0 1 11 7h2a4.003 4.003 0 0 0-4.398-3.98C6.523 3.222 5 5.089 5 7.178V10H3a1 1 0 0 0-1 1v2c0 2.606 1.674 4.823 4 5.65V22h2v-3h8v3h2v-3.35c2.326-.827 4-3.044 4-5.65v-2a1 1 0 0 0-1-1z">
-                                            </path>
-                                        </svg>
-                                        <a href="{{ url_for('home_product', tipo='higiene pessoal') }}"
-                                            style="text-decoration: none;">
-                                            <div class="item-title">
-                                                <h3>Higiene Pessoal</h3>
-                                                <p>Produtos para se manter limpo</p>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
-                                            <path
-                                                d="M15 9.783V4h1V2H8v2h1v5.783l-4.268 9.389a1.992 1.992 0 0 0 .14 1.911A1.99 1.99 0 0 0 6.553 22h10.895a1.99 1.99 0 0 0 1.681-.917c.37-.574.423-1.289.14-1.911L15 9.783zm-4.09.631c.06-.13.09-.271.09-.414V4h2v6c0 .143.03.284.09.414L15.177 15H8.825l2.085-4.586z">
-                                            </path>
-                                        </svg>
-                                        <a href="{{ url_for('home_product', tipo='cosméticos') }}"
-                                            style="text-decoration: none;">
-                                            <div class="item-title">
-                                                <h3>Cosméticos</h3>
-                                                <p>Produtos para sua beleza</p>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
-                                            <circle cx="12" cy="6" r="2"></circle>
-                                            <path
-                                                d="M14 9h-4a1 1 0 0 0-.8.4l-3 4 1.6 1.2L9 13v7h2v-4h2v4h2v-7l1.2 1.6 1.6-1.2-3-4A1 1 0 0 0 14 9z">
-                                            </path>
-                                        </svg>
-                                        <a href="{{ url_for('home_product', tipo='infantil') }}"
-                                            style="text-decoration: none;">
-                                            <div class="item-title">
-                                                <h3>Infantil</h3>
-                                                <p>Produtos para as crinaças</p>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
-                                            <circle cx="12" cy="4" r="2"></circle>
-                                            <path d="M15 22V9h5V7H4v2h5v13h2v-7h2v7z"></path>
-                                        </svg>
-                                        <a href="{{ url_for('home_product', tipo='terceira idade') }}"
-                                            style="text-decoration: none;">
-                                            <div class="item-title">
-                                                <h3>Terceira Idade</h3>
-                                                <p>Produtos para os idosos</p>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
-                                            <path
-                                                d="m11.646 3.868-7.778 7.778a6.007 6.007 0 0 0 0 8.485 5.984 5.984 0 0 0 4.242 1.754 5.984 5.984 0 0 0 4.243-1.754l7.778-7.778a6.007 6.007 0 0 0 0-8.485 6.008 6.008 0 0 0-8.485 0zM9 13a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm3 3a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-6a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm3 3a1 1 0 1 1 0-2 1 1 0 0 1 0 2z">
-                                            </path>
-                                        </svg>
-                                        <a href="{{ url_for('home_product', tipo='primeiros socorros') }}"
-                                            style="text-decoration: none;">
-                                            <div class="item-title">
-                                                <h3>Primeiros Socorros</h3>
-                                                <p>Produtos para acidentes e emergencias</p>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
-                                            <circle cx="9" cy="4" r="2"></circle>
-                                            <path
-                                                d="M16.98 14.804A1 1 0 0 0 16 14h-4.133l-.429-3H16V9h-4.847l-.163-1.142A1 1 0 0 0 10 7H9a1.003 1.003 0 0 0-.99 1.142l.877 6.142A2.009 2.009 0 0 0 10.867 16h4.313l.839 4.196c.094.467.504.804.981.804h3v-2h-2.181l-.839-4.196z">
-                                            </path>
-                                            <path
-                                                d="M12.51 17.5c-.739 1.476-2.25 2.5-4.01 2.5A4.505 4.505 0 0 1 4 15.5a4.503 4.503 0 0 1 2.817-4.167l-.289-2.025C3.905 10.145 2 12.604 2 15.5 2 19.084 4.916 22 8.5 22a6.497 6.497 0 0 0 5.545-3.126l-.274-1.374H12.51z">
-                                            </path>
-                                        </svg>
-                                        <a href="{{ url_for('home_product', tipo='equipamentos de saúde') }}"
-                                            style="text-decoration: none;">
-                                            <div class="item-title">
-                                                <h3>Equipamentos de Saúde</h3>
-                                                <p>Equipamentos de suporte ao paciente</p>
-                                            </div>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('promocoes') }}" title="Docs">Promoções</a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('carrinho') }}" title="Meu carrinho">Meu Carrinho</a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('comprados') }}" title="Customers">Minhas Compras</a>
-                    </li>
-                    <form class="search__wrapper" action="/produto" method="post"> <!-- Ínicio da Barra de pesquisa -->
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M9 9L13 13M5.66667 10.3333C3.08934 10.3333 1 8.244 1 5.66667C1 3.08934 3.08934 1 5.66667 1C8.244 1 10.3333 3.08934 10.3333 5.66667C10.3333 8.244 8.244 10.3333 5.66667 10.3333Z"
-                                stroke="#697089" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <input type="text" id="search" name="search" placeholder="Buscar Produto...">
-                    </form>
-                </ul>
-            </nav>
-        </div>
-        <div class="action-buttons hide">
-            <a href="#user_page" title="User" class="secondary">Bem-vindo, {{ user }}</a>
-            <a href="{{ url_for('logout') }}" title="Log out" class="primary">Log out</a>
-        </div>
-        <button aria-label="Open menu" class="burger-menu" type="button">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-menu" width="24" height="24"
-                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M4 8l16 0" />
-                <path d="M4 16l16 0" />
-            </svg>
-        </button>
-        {% else %}
-        <div class="menu__bar">
-            <a href="{{ url_for('home') }}" title="Home" aria-label="home" class="logo">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48px" height="48px" viewBox="0 0 24 24"
-                    style="fill: rgba(0, 0, 0, 1);">
-                    <path
-                        d="M12 16.114c-3.998-5.951-8.574-7.043-8.78-7.09L2 8.75V10c0 7.29 3.925 12 10 12 5.981 0 10-4.822 10-12V8.75l-1.22.274c-.206.047-4.782 1.139-8.78 7.09z">
-                    </path>
-                    <path
-                        d="M11.274 3.767c-1.799 1.898-2.84 3.775-3.443 5.295 1.329.784 2.781 1.943 4.159 3.685 1.364-1.76 2.826-2.925 4.17-3.709-.605-1.515-1.646-3.383-3.435-5.271L12 3l-.726.767z">
-                    </path>
-                </svg>
-                <span class="hide">PharmaEssence</span>
-            </a>
-            <nav>
-                <ul class="navigation hide">
-                    <li>
-                        <button>
-                            Produtos
-                            <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16">
-                                <path
-                                    d="M12.78 5.22a.749.749 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.06 0L3.22 6.28a.749.749 0 1 1 1.06-1.06L8 8.939l3.72-3.719a.749.749 0 0 1 1.06 0Z">
-                                </path>
-                            </svg>
-                        </button>
-                        <div class="dropdown__wrapper">
-                            <div class="dropdown">
-                                <ul class="list-items-with-description">
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
-                                            <path
-                                                d="M8.434 20.566c1.335 0 2.591-.52 3.535-1.464l7.134-7.133a5.008 5.008 0 0 0-.001-7.072 4.969 4.969 0 0 0-3.536-1.463c-1.335 0-2.59.52-3.534 1.464l-7.134 7.133a5.01 5.01 0 0 0-.001 7.072 4.971 4.971 0 0 0 3.537 1.463zm5.011-14.254a2.979 2.979 0 0 1 2.12-.878c.802 0 1.556.312 2.122.878a3.004 3.004 0 0 1 .001 4.243l-2.893 2.892-4.242-4.244 2.892-2.891z">
-                                            </path>
-                                        </svg>
-                                        <a href="{{ url_for('home_product', tipo='medicamentos') }}"
-                                            style="text-decoration: none;">
-                                            <div class="item-title">
-                                                <h3>Medicamentos</h3>
-                                                <p>Remédios e produtos para sua melhora</p>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
-                                            <path
-                                                d="M17.168 8H13l.806-4.835A1 1 0 0 0 12.819 2H7.667a1 1 0 0 0-.986.835l-1.667 10A1 1 0 0 0 6 14h4v8l8.01-12.459A1 1 0 0 0 17.168 8z">
-                                            </path>
-                                        </svg>
-                                        <a href="{{ url_for('home_product', tipo='vitaminas e suplementos') }}"
-                                            style="text-decoration: none;">
-                                            <div class="item-title">
-                                                <h3>Vitaminas e Suplementos</h3>
-                                                <p>Produtos para manter sua saúde</p>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
-                                            <path
-                                                d="M21 10H7V7.113c0-.997.678-1.923 1.661-2.085A2.003 2.003 0 0 1 11 7h2a4.003 4.003 0 0 0-4.398-3.98C6.523 3.222 5 5.089 5 7.178V10H3a1 1 0 0 0-1 1v2c0 2.606 1.674 4.823 4 5.65V22h2v-3h8v3h2v-3.35c2.326-.827 4-3.044 4-5.65v-2a1 1 0 0 0-1-1z">
-                                            </path>
-                                        </svg>
-                                        <a href="{{ url_for('home_product', tipo='higiene pessoal') }}"
-                                            style="text-decoration: none;">
-                                            <div class="item-title">
-                                                <h3>Higiene Pessoal</h3>
-                                                <p>Produtos para se manter limpo</p>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
-                                            <path
-                                                d="M15 9.783V4h1V2H8v2h1v5.783l-4.268 9.389a1.992 1.992 0 0 0 .14 1.911A1.99 1.99 0 0 0 6.553 22h10.895a1.99 1.99 0 0 0 1.681-.917c.37-.574.423-1.289.14-1.911L15 9.783zm-4.09.631c.06-.13.09-.271.09-.414V4h2v6c0 .143.03.284.09.414L15.177 15H8.825l2.085-4.586z">
-                                            </path>
-                                        </svg>
-                                        <a href="{{ url_for('home_product', tipo='cosméticos') }}"
-                                            style="text-decoration: none;">
-                                            <div class="item-title">
-                                                <h3>Cosméticos</h3>
-                                                <p>Produtos para sua beleza</p>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
-                                            <circle cx="12" cy="6" r="2"></circle>
-                                            <path
-                                                d="M14 9h-4a1 1 0 0 0-.8.4l-3 4 1.6 1.2L9 13v7h2v-4h2v4h2v-7l1.2 1.6 1.6-1.2-3-4A1 1 0 0 0 14 9z">
-                                            </path>
-                                        </svg>
-                                        <a href="{{ url_for('home_product', tipo='infantil') }}"
-                                            style="text-decoration: none;">
-                                            <div class="item-title">
-                                                <h3>Infantil</h3>
-                                                <p>Produtos para as crinaças</p>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
-                                            <circle cx="12" cy="4" r="2"></circle>
-                                            <path d="M15 22V9h5V7H4v2h5v13h2v-7h2v7z"></path>
-                                        </svg>
-                                        <a href="{{ url_for('home_product', tipo='terceira idade') }}"
-                                            style="text-decoration: none;">
-                                            <div class="item-title">
-                                                <h3>Terceira Idade</h3>
-                                                <p>Produtos para os idosos</p>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
-                                            <path
-                                                d="m11.646 3.868-7.778 7.778a6.007 6.007 0 0 0 0 8.485 5.984 5.984 0 0 0 4.242 1.754 5.984 5.984 0 0 0 4.243-1.754l7.778-7.778a6.007 6.007 0 0 0 0-8.485 6.008 6.008 0 0 0-8.485 0zM9 13a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm3 3a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-6a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm3 3a1 1 0 1 1 0-2 1 1 0 0 1 0 2z">
-                                            </path>
-                                        </svg>
-                                        <a href="{{ url_for('home_product', tipo='primeiros socorros') }}"
-                                            style="text-decoration: none;">
-                                            <div class="item-title">
-                                                <h3>Primeiros Socorros</h3>
-                                                <p>Produtos para acidentes e emergencias</p>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);">
-                                            <circle cx="9" cy="4" r="2"></circle>
-                                            <path
-                                                d="M16.98 14.804A1 1 0 0 0 16 14h-4.133l-.429-3H16V9h-4.847l-.163-1.142A1 1 0 0 0 10 7H9a1.003 1.003 0 0 0-.99 1.142l.877 6.142A2.009 2.009 0 0 0 10.867 16h4.313l.839 4.196c.094.467.504.804.981.804h3v-2h-2.181l-.839-4.196z">
-                                            </path>
-                                            <path
-                                                d="M12.51 17.5c-.739 1.476-2.25 2.5-4.01 2.5A4.505 4.505 0 0 1 4 15.5a4.503 4.503 0 0 1 2.817-4.167l-.289-2.025C3.905 10.145 2 12.604 2 15.5 2 19.084 4.916 22 8.5 22a6.497 6.497 0 0 0 5.545-3.126l-.274-1.374H12.51z">
-                                            </path>
-                                        </svg>
-                                        <a href="{{ url_for('home_product', tipo='equipamentos de saúde') }}"
-                                            style="text-decoration: none;">
-                                            <div class="item-title">
-                                                <h3>Equipamentos de Saúde</h3>
-                                                <p>Equipamentos de suporte ao paciente</p>
-                                            </div>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('promocoes') }}" title="Docs">Promoções</a>
-                    </li>
-                    <form class="search__wrapper" action="/produto" method="post"> <!-- Ínicio da Barra de pesquisa -->
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M9 9L13 13M5.66667 10.3333C3.08934 10.3333 1 8.244 1 5.66667C1 3.08934 3.08934 1 5.66667 1C8.244 1 10.3333 3.08934 10.3333 5.66667C10.3333 8.244 8.244 10.3333 5.66667 10.3333Z"
-                                stroke="#697089" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <input type="text" id="search" name="search" placeholder="Buscar Produto...">
-                    </form>
-                </ul>
-            </nav>
-        </div>
-        <div class="action-buttons hide">
-            <a href="{{ url_for('login') }}" title="Log in" class="secondary">
-                Log In
-            </a>
-            <a href="{{ url_for('cadastro') }}" title="Sign up" class="primary">
-                Sign up
-            </a>
-        </div>
-        <button aria-label="Open menu" class="burger-menu" type="button">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-menu" width="24" height="24"
-                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M4 8l16 0" />
-                <path d="M4 16l16 0" />
-            </svg>
-        </button>
-        {% endif %}
-    </header>
+    {% else %}
     <div class="cards">
         <div class="articles">
             {% for produto in products %}
@@ -822,6 +437,12 @@
         </div>
         {% endif %}
     </div>
+    {% endif %}
+    <script>
+        var mensagem = "{{ mensagem }}";
+        if (mensagem) {
+            alert(mensagem);
+        }
+    </script>
 </body>
 </html>
-{% endif %}

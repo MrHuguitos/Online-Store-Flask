@@ -15,6 +15,8 @@ banco = mysql.connector.connect(
 )
 cursor = banco.cursor()
 
+PER_PAGE = 8  # Quantidade de itens por página
+
 def corrigir_input(data):  # Remoção de símbolos especiais de input
     return re.sub(r'\D', '', data)
 
@@ -32,8 +34,6 @@ def corrigir_data(data):  # Corrigir a data para o padrão DIA/MES/ANO
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
-
-PER_PAGE = 8  # Quantidade de itens por página
 
 @app.route('/home')  # Página Principal
 def home():
@@ -59,13 +59,14 @@ def home():
     total_produtos = quantidade[0] if quantidade else 0
 
     pagination = Pagination(page = page, per_page = PER_PAGE, total = total_produtos, css_framework = 'bootstrap3')  # Configuração da paginação
+    mensagem = request.args.get('mensagem', '') # Extrai a mensagem da URL e a passa para o template home.html.
 
     if 'user_id' not in session:
-        return render_template("principal.html", products=dados_produtos, pagination=pagination)
-
+        return render_template("principal.html", products=dados_produtos, pagination=pagination, promo = False, mensagem = mensagem)
+    
     cursor.execute("SELECT nome FROM cliente WHERE email = %s;", (session['user_id'],))
 
-    return render_template("principal.html", products = dados_produtos, pagination = pagination, user = cursor.fetchone()[0], promo = False)
+    return render_template("principal.html", products = dados_produtos, pagination = pagination, user = cursor.fetchone()[0], promo = False, mensagem = mensagem)
 
 @app.route('/home/<tipo>', methods=['GET']) # Página com os produtos de cada categoria
 def home_product(tipo): 
@@ -93,7 +94,7 @@ def home_product(tipo):
     pagination = Pagination(page = page, per_page = PER_PAGE, total = total_produtos, css_framework = 'bootstrap3')  # Configuração da paginação
 
     if 'user_id' not in session:
-        return render_template("principal.html", products=dados_produtos, pagination=pagination)
+        return render_template("principal.html", products=dados_produtos, pagination=pagination, promo = False)
 
     cursor.execute("SELECT nome FROM cliente WHERE email = %s;", (session['user_id'],))
 
@@ -153,7 +154,7 @@ def cadastro():
         cursor.execute("SELECT email, cpf FROM cliente WHERE email = %s OR cpf = %s;", (email, cpf))
 
         if cursor.fetchone():
-            return redirect(url_for('home'))
+            return redirect(url_for('home', mensagem = "O usuário já existe!"))
         else:
             cursor.execute("INSERT INTO cliente VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", (email, cpf, senha, nome, estado, cidade, bairro, rua, numero, nascimento))
             banco.commit()
@@ -162,7 +163,7 @@ def cadastro():
                 i2 = corrigir_input(i)
                 cursor.execute("INSERT INTO contato_cliente VALUES (%s, %s);", (i2, email))
                 banco.commit()
-            return redirect(url_for('home'))
+            return redirect(url_for('home', mensagem = "Usuário cadastrado com sucesso!"))
     else:
         return render_template("sign-up.html")
 
@@ -235,7 +236,7 @@ def save_product(codigo):
     cursor.execute("INSERT INTO carrinho (cod_produtos, email_cliente, quantidade) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE quantidade = quantidade + VALUES(quantidade);", (codigo, user_id, quantidade))
     banco.commit()
 
-    return redirect(url_for('home'))
+    return redirect(url_for('home', mensagem = "Produto adicionado ao carrinho!"))
 
 @app.route('/carrinho', methods=['GET'])  # Verificar carrinho
 def carrinho():
@@ -263,8 +264,9 @@ def carrinho():
                     "quantidade": quant_produto}
 
         dados_carrinho.append(produtos)
+    mensagem = request.args.get('mensagem', '')
 
-    return render_template("carrinho.html", products=dados_carrinho, total=str(total).replace('.', ','))
+    return render_template("carrinho.html", products=dados_carrinho, total=str(total).replace('.', ','), mensagem = mensagem)
 
 @app.route('/update-quantity', methods=['POST']) # Atualizar quantidade de produtos no carrinho
 def update_quantity():
@@ -307,9 +309,9 @@ def comprar():
             cursor.execute("UPDATE produtos SET quantidade = %s WHERE cod = %s;", (estoque, i))
             banco.commit()
 
-        return redirect(url_for('home'))
+        return redirect(url_for('home', mensagem = "Compra realizada com sucesso!"))
     else:
-        return render_template("carrinho.html", mensagem="Dados incorretos! Tente novamente mais tarde.")
+        return redirect(url_for('carrinho', mensagem = "Dados incorretos! Tente novamente mais tarde."))
 
 @app.route('/comprados', methods=['GET'])   # Verificar compras feitas
 def comprados():

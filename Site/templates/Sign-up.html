@@ -50,6 +50,10 @@
                 <div>
                     <input type="text" name="cpf" id="cpf" placeholder="XXX.XXX.XXX-XX" required oninput="formatarCPF()" maxlength="14">
                 </div>
+                <label>Senha:</label>
+                <div>
+                    <input type="password" name="senha" id="senha" placeholder="*********" title="Minimo de 6 caracteres com pelo menos 1 letra e 1 número" pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$" required>
+                </div>
                 <label>Nome Completo:</label>
                 <div>
                     <input type="text" name="nome" id="nome" placeholder="Hugo Silva de Araujo" required maxlength="45">
@@ -58,8 +62,8 @@
                 <div>
                     <input type="date" name="nascimento" id="nascimento" required>
                 </div>
-                <label>Estado:</label>
-                <div>
+                <label>Localidade(Estado e Cidade):</label>
+                <div class="localidade">
                     <select name="state" id="state" required>
                         <option>AC</option>
                         <option>AM</option>
@@ -89,32 +93,19 @@
                         <option>SC</option>
                         <option>RS</option>
                     </select>
+                    <input type="text" name="city" id="city" placeholder="Cidade" required maxlength="45">
                 </div>
-                <label>Cidade:</label>
-                <div>
-                    <input type="text" name="city" id="city" placeholder="Ceará-Mirim" required maxlength="45">
-                </div>
-                <label>Bairro:</label>
-                <div>
-                    <input type="text" name="district" id="district" placeholder="Nova Ceará-Mirim" required maxlength="45">
-                </div>
-                <label>Rua:</label>
-                <div>
-                    <input type="text" name="street" id="street" placeholder="Av. Principal" required maxlength="45">
-                </div>
-                <label>Número:</label>
-                <div>
-                    <input type="text" name="number" id="number" placeholder="XXX" required>
+                <label>Enderço(Bairro, rua e número):</label>
+                <div class="endereco">
+                    <input type="text" name="district" id="district" placeholder="Bairro" required maxlength="45">
+                    <input type="text" name="street" id="street" placeholder="Rua" required maxlength="45">
+                    <input type="text" name="number" id="number" placeholder="Nº" required>
                 </div>
                 <label>Telefones para contato:</label>
                 <div id="camposExistentes">
                     <input type="tel" name="phone" id="phone" placeholder="(XX) XXXXX-XXXX" required maxlength="15" oninput="formatarTelefone(this)">
                 </div>
                 <button type="button" id="adicionarCampo">Adicionar Telefone</button><br>
-                <label>Senha:</label>
-                <div>
-                    <input type="password" name="senha" id="senha" placeholder="*********" title="Minimo de 6 caracteres com pelo menos 1 letra e 1 número" pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$" required>
-                </div>
                 <div id="btn">
                     <button type="submit">Concluir</button>
                 </div>

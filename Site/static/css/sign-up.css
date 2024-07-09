@@ -29,6 +29,9 @@ body{
     align-items: center;
     color: #2b344b;
     pointer-events: all;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    box-shadow: 0px 4px 16px rgb(0 0 0 / .3);
 }
 .title{
     font-size: 1.8em; 
@@ -57,11 +60,10 @@ body{
 select {
     background-color: #cfcfcf;
     color: #2b344b;
-    width: 100%;
+    width: 13%;
     border: 2px black solid;
-    border-radius: 22px;
+    border-radius: 5px;
     margin: 0px 0px 12px -5px;
-    min-width: 280px;
     padding: 5px;
 }
 input[type="date"]{
@@ -69,9 +71,8 @@ input[type="date"]{
     color: #2b344b;
     width: 97%;
     border: 2px black solid;
-    border-radius: 22px;
+    border-radius: 5px;
     margin: 0px 0px 12px -5px;
-    min-width: 280px;
     padding: 5px;
 }
 input[type="tel"]{
@@ -79,9 +80,8 @@ input[type="tel"]{
     color: #2b344b;
     width: 97%;
     border: 2px black solid;
-    border-radius: 22px;
+    border-radius: 5px;
     margin: 0px 0px 12px -5px;
-    min-width: 280px;
     padding: 5px;
 }
 input[type="text"]{
@@ -89,9 +89,8 @@ input[type="text"]{
     color: #2b344b;
     width: 97%;
     border: 2px black solid;
-    border-radius: 22px;
+    border-radius: 5px;
     margin: 0px 0px 12px -5px;
-    min-width: 280px;
     padding: 5px;
 }
 input[type="password"]{
@@ -99,7 +98,7 @@ input[type="password"]{
     color: #2b344b;
     width: 97%;
     border: 2px black solid;
-    border-radius: 22px;
+    border-radius: 5px;
     margin: 0px 0px 12px -5px;
     min-width: 280px;
     padding: 5px;
@@ -109,23 +108,47 @@ input[type="email"]{
     color: #2b344b;
     width: 97%;
     border: 2px black solid;
-    border-radius: 22px;
+    border-radius: 5px;
     margin: 0px 0px 12px -5px;
     min-width: 280px;
     padding: 5px;
 }
 button[type="button"]{
-    width: 50%;
+    width: 40%;
     text-align: center;
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(90deg, rgba(8,36,0,0.8559874633447129) 0%, rgba(46,121,9,0.8727941860337886) 35%, rgba(0,255,156,1) 100%);
+    background: rgba(46,121,9,0.8727941860337886);
     border: none;
     font-size: 1.0em;
     color: #fff;
-    border-radius: 10px;
+    border-radius: 5px;
     outline: none;
     cursor: pointer;
 }
-button[type="button"]:hover{
-    background: linear-gradient(90deg, rgba(8,36,0,0.8559874633447129) 0%, rgba(0,255,156,1) 100%, rgba(46,121,9,0.8727941860337886) 35%);
+.localidade {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espaço entre o select e o input */
+    width: 99%;
+}
+.localidade input[type="text"]{
+    background-color: #cfcfcf;
+    color: #2b344b;
+    width: 85%;
+    border: 2px black solid;
+    border-radius: 5px;
+    margin: 0px 0px 12px -5px;
+    padding: 5px;
+}
+.endereco {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espaço entre o select e o input */
+    width: 99%;
+}
+.endereco #district, #street {
+    width: 42%;
+}
+#number {
+    width: 7%;
 }

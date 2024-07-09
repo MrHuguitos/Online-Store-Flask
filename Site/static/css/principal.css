@@ -354,6 +354,7 @@ span {
     transition: all 0.4s ease-in-out;
     overflow: hidden;
     border-radius: 4px;
+    box-shadow: 0px 4px 16px rgb(0 0 0 / .3);
 }
     
 .articles article h2 {
@@ -434,19 +435,21 @@ p {
     margin-top: 40px;
     margin-left: 25%;
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(90deg, rgba(35,127,45,1) 0%, rgba(69,252,89,1) 50%, rgba(82,209,96,1) 100%);
+    background: #22ce00;
+    transition: .3s;
     width: 50%;
     height: 40px;
     border: none;
     font-size: 1.2em;
-    color: #595757;
+    color: #151515;
     border-radius: 5px;
     outline: none;
     cursor: pointer;
 }
 
 .btn:hover {
-    background: linear-gradient(90deg, rgba(82,209,96,1) 0%, rgba(69,252,89,1) 50%, rgba(35,127,45,1) 100%);
+    background: #2a2f43ea;
+    color: #f0f0f0;
 }
 
 .read-value {
