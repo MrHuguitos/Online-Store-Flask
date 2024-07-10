@@ -190,7 +190,7 @@
             </nav>
         </div>
         <div class="action-buttons hide">
-            <a href="#user_page" title="User" class="secondary">Bem-vindo, {{ user }}</a>
+            <a href="{{ url_for('usuario') }}" title="User" class="secondary">Bem-vindo, {{ user }}</a>
             <a href="{{ url_for('logout') }}" title="Log out" class="primary">Log out</a>
         </div>
         <button aria-label="Open menu" class="burger-menu" type="button">

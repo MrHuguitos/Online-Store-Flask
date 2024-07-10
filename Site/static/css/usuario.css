@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@1,300&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    background-color: #f1f1f1;
+}
+
+.header {
+    margin-top: 4%;
+    margin-left: 35%;
+    margin-right: 35%;
+    display: ruby-text;
+}
+
+.header>h1 {
+    color: #1c1c1c;
+    padding: 15px;
+}
+
+.header button {
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    font-size: 2rem;
+    background: #ddddda50;
+    color: #22ce00;
+    border: 2px solid #ddddda;
+    border-radius: 8px;
+    line-height: 50%;
+    transition: .4s;
+}
+
+.header button:hover {
+    background: #22ce00;
+    color: #fff;
+    border-color: #22ce00;
+}
+
+p {
+    color: #404040;
+    padding: 10px;
+}
+
+.header>p {
+    padding: 15px;
+}
+
+.imagem>img {
+    height: 200px;
+    width: 200px;
+    border-radius: 50%;
+    filter: grayscale(1);
+    transition: 0.5s;
+}
+
+img:hover {
+    cursor: pointer;
+    filter: grayscale(0);
+}
+
+.about {
+    border-radius: 10px;
+    background-color: #fff;
+    margin-left: 35%;
+    margin-right: 35%;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 5%;
+}
+
+.about>h1 {
+    color: #1c1c1c;
+    padding: 10px;
+    font-size: 1.25rem;
+}
+
+.about span {
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+}

@@ -39,7 +39,7 @@
     </head>
     <body>
         <div id="form">
-            <form action="/sign-up" method="post">
+            <form action="/sign-up" method="post" enctype="multipart/form-data">
                 <h2>Sign up</h2>
 
                 <label>E-mail:</label>
@@ -106,6 +106,10 @@
                     <input type="tel" name="phone" id="phone" placeholder="(XX) XXXXX-XXXX" required maxlength="15" oninput="formatarTelefone(this)">
                 </div>
                 <button type="button" id="adicionarCampo">Adicionar Telefone</button><br>
+                <label>Sua Foto:</label>
+                <div>
+                    <input type="file" name="imagem" id="imagem" accept=".jpg" required>
+                </div>
                 <div id="btn">
                     <button type="submit">Concluir</button>
                 </div>

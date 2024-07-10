@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Olá, {{ nome }}</title>
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/usuario.css') }}">
+</head>
+
+<body>
+    <div class="header">
+        <button type="button" onclick="window.history.back();">
+            <i class="bx bx-chevron-left"></i>
+        </button>
+        <h1 id="perfil">Perfil</h1>
+    </div>
+    <div class="imagem">
+        <img class="avatar" src="data:image/jpeg;base64,{{ foto }}" alt="Avatar">
+    </div>
+    <div class="about">
+        <h1>Informações</h1>
+        <span class="negrito">Nome: </span>
+        <p>{{ nome }}</p>
+        <span class="negrito">Localidade: </span>
+        <p>{{ cidade }}, {{ estado }}</p>
+        <span class="negrito">Endereço: </span>
+        <p>{{ bairro }}, {{ rua }}, {{ numero }}</p>
+    </div>
+</body>
+
+</html>

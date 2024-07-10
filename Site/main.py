@@ -65,8 +65,10 @@ def home():
         return render_template("principal.html", products=dados_produtos, pagination=pagination, promo = False, mensagem = mensagem)
     
     cursor.execute("SELECT nome FROM cliente WHERE email = %s;", (session['user_id'],))
+    linha = cursor.fetchone()
+    usuario = linha[0].split()
 
-    return render_template("principal.html", products = dados_produtos, pagination = pagination, user = cursor.fetchone()[0], promo = False, mensagem = mensagem)
+    return render_template("principal.html", products = dados_produtos, pagination = pagination, user = usuario[0], promo = False, mensagem = mensagem)
 
 @app.route('/home/<tipo>', methods=['GET']) # Página com os produtos de cada categoria
 def home_product(tipo): 
@@ -97,8 +99,10 @@ def home_product(tipo):
         return render_template("principal.html", products=dados_produtos, pagination=pagination, promo = False)
 
     cursor.execute("SELECT nome FROM cliente WHERE email = %s;", (session['user_id'],))
+    linha = cursor.fetchone()
+    usuario = linha[0].split()
 
-    return render_template("principal.html", products = dados_produtos, pagination = pagination, user = cursor.fetchone()[0], promo = False)
+    return render_template("principal.html", products = dados_produtos, pagination = pagination, user = usuario[0], promo = False)
 
 @app.route('/promocoes', methods=['GET'])   # Página com as promoções
 def promocoes():
@@ -133,8 +137,10 @@ def promocoes():
         return render_template("principal.html", products=dados_produtos, pagination=pagination, promo = True)
 
     cursor.execute("SELECT nome FROM cliente WHERE email = %s;", (session['user_id'],))
+    linha = cursor.fetchone()
+    usuario = linha[0].split()
 
-    return render_template("principal.html", products = dados_produtos, pagination = pagination, user = cursor.fetchone()[0], promo = True)
+    return render_template("principal.html", products = dados_produtos, pagination = pagination, user = usuario[0], promo = True)
 
 @app.route('/sign-up', methods=['GET', 'POST'])  # Cadastro de usuários
 def cadastro():
@@ -150,13 +156,16 @@ def cadastro():
         numero = request.form['number']
         senha = generate_password_hash(request.form['senha']) #Criptografar senha
         telefone = request.form.getlist('phone')
+        foto = request.files['imagem']
+
+        imagem = foto.read() #Converter a imagem em binário
 
         cursor.execute("SELECT email, cpf FROM cliente WHERE email = %s OR cpf = %s;", (email, cpf))
 
         if cursor.fetchone():
             return redirect(url_for('home', mensagem = "O usuário já existe!"))
         else:
-            cursor.execute("INSERT INTO cliente VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", (email, cpf, senha, nome, estado, cidade, bairro, rua, numero, nascimento))
+            cursor.execute("INSERT INTO cliente VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", (email, cpf, senha, nome, estado, cidade, bairro, rua, numero, nascimento, imagem))
             banco.commit()
 
             for i in telefone:
@@ -188,6 +197,23 @@ def login():
 def logout():
     session.pop('user_id', None)
     return redirect(url_for('home'))
+
+@app.route('/usuario', methods=['GET']) # Página com os dados do usuário
+def usuario():
+    email = session['user_id']
+
+    cursor.execute("SELECT cliente.foto, cliente.nome, cliente.estado, cliente.cidade, cliente.bairro, cliente.rua, cliente.numero FROM cliente WHERE cliente.email = %s;", (email, ))
+    linha = cursor.fetchone()
+
+    foto_cliente = base64.b64encode(linha[0]).decode('utf-8') # Converter os dados binários em uma imagem
+    nome_cliente = linha[1]
+    estado_cliente = linha[2]
+    cidade_cliente = linha[3]
+    bairro_cliente = linha[4]
+    rua_cliente = linha[5]
+    numero_cliente = linha[6]
+
+    return render_template("usuario.html", foto = foto_cliente, nome = nome_cliente, estado = estado_cliente, cidade = cidade_cliente, bairro = bairro_cliente, rua = rua_cliente, numero = numero_cliente)
 
 @app.route('/produto/<nome>', methods=['GET'])  # Produto
 def mostrar_produtos(nome):
