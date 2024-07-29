@@ -12,6 +12,8 @@
     --cor_primaria: #22ce00;
     --cor_secundaria: #2a2f43ea;
     --cor_fundo: #f5f5f5;
+    --cor_estrela_1: #e58e09;
+    --cor_estrela_2: #ffa723;
 }
 
 body {
@@ -132,23 +134,113 @@ body {
     color: var(--cor_secundaria);
 }
 
-.carrinho .pagar {
+.carrinho .avaliar {
     font: 500 1rem 'Poppins';
     cursor: pointer;
-    width: 100%;
+    width: 40%;
     color: #fff;
     background: var(--cor_primaria);
-    padding: 15px 0;
+    padding: 8px 0;
     border-radius: 8px;
     margin-top: 10px;
     transition: .3s;
 }
 
-.carrinho .pagar:hover {
+.carrinho .avaliar:hover {
     background: #2a2f43f1;
 }
 
 a {
     color: inherit;
     text-decoration: none;
+}
+
+dialog::backdrop {
+    background-color: rgb(0 0 0 / .3);
+}
+
+dialog {
+    border: none;
+    border-radius: .5rem;
+    box-shadow: rgb(0 0 0 / .3);
+    width: 30%;
+    margin-top: 14%;
+    margin-left: 35%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    gap: 10px;
+}
+
+dialog h2 {
+    margin: auto;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+}
+
+dialog button {
+    font: 400 1rem 'Poppins';
+    cursor: pointer;
+    width: 100%;
+    color: #fff;
+    background: var(--cor_primaria);
+    padding: 10px 0;
+    border-radius: 8px;
+    transition: .3s;
+}
+
+dialog button:hover {
+    background: #2a2f43f1;
+}
+
+dialog .button-center {
+    margin-left: 5%;
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    gap: 10px; /* Espaço entre os botões */
+}
+
+dialog input[type = "text"] {
+    border: 2px solid #000000;
+    border-radius: 8px;
+    width: 100%;
+    font-family: 'Poppins', sans-serif;
+    margin-top: 10px;
+}
+
+.estrelas {
+    display: flex;
+    gap: 10px; /* Espaço entre as estrelas */
+    margin-left: 29%;
+}
+
+.estrelas input[type="radio"] {
+    display: none;
+}
+
+.estrelas label {
+    cursor: pointer;
+    font-size: 2rem; /* Tamanho das estrelas */
+    color: #ddd; /* Cor das estrelas não selecionadas */
+    position: relative;
+    transition: color 0.3s;
+}
+
+.estrelas .star {
+    transition: color 0.3s;
+}
+
+/* Estrelas selecionadas */
+.estrelas input[type="radio"]:checked ~ label,
+.estrelas input[type="radio"]:checked ~ label ~ label {
+    color: var(--cor_estrela_2); /* Cor das estrelas selecionadas */
+}
+
+/* Hover apenas das estrelas anteriores e a própria */
+.estrelas label:hover,
+.estrelas label:hover ~ label {
+    color: var(--cor_estrela_1); /* Cor das estrelas ao passar o mouse */
 }

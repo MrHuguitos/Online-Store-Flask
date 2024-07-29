@@ -101,7 +101,7 @@ label {
     margin: 0 5px;
 }
 
-button {
+.btn button {
     background: #22ce00;
     transition: .3s;
     width: 45%;
@@ -113,7 +113,7 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+.btn button:hover {
     background: #2a2f43ea;
     color: #f0f0f0;
 }
@@ -126,7 +126,7 @@ h6 {
     visibility: hidden;
 }
 
-button[type="button"] {
+.voltar button {
     cursor: pointer;
     width: 40px;
     height: 40px;
@@ -139,7 +139,138 @@ button[type="button"] {
     transition: .3s;
 }
 
-button[type="button"]:hover {
+.voltar button:hover {
     background: #22ce00;
     color: #f0f0f0;
+}
+
+.star {
+    font-size: 15px;
+    color: #ddd;
+    position: relative;
+    display: inline-block;
+}
+
+.star-filled {
+    color: var(--cor_primaria);
+}
+
+.star-half::before {
+    content: '\2605'; /* Unicode para a estrela preenchida */
+    color: var(--cor_primaria);
+    position: absolute;
+    left: 0;
+    width: 50%;
+    overflow: hidden;
+}
+
+.estrelas-geral span {
+    font-size: 15px;
+    font-family: "Source Code Pro", monospace;
+    font-weight: bold;
+}
+
+.avaliacao-geral {
+    cursor: pointer;
+}
+
+dialog::backdrop {
+    background-color: rgb(0 0 0 / .3);
+}
+
+dialog {
+    border: none;
+    border-radius: .5rem;
+    box-shadow: rgb(0 0 0 / .3);
+    width: 30%;
+    max-height: 45%;
+    margin-top: 14%;
+    margin-left: 35%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    gap: 10px;
+}
+
+.dialog-content {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+dialog h2 {
+    margin: auto;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+}
+
+dialog input {
+    background-color: #dfdfdf;
+    color: #000000;
+    width: 90%;
+    border: 2px black solid;
+    border-radius: 8px;
+    min-width: 280px;
+    padding: 5px;
+}
+
+dialog label {
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+}
+
+dialog .input {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 5px;
+}
+
+dialog button {
+    font: 400 1rem 'Poppins';
+    cursor: pointer;
+    width: 50%;
+    color: black;
+    background: var(--cor_primaria);
+    padding: 10px 0;
+    border-radius: 8px;
+    transition: .3s;
+}
+
+dialog button:hover {
+    color: #fff;
+    background: #2a2f43f1;
+}
+
+dialog .button-center {
+    margin-left: 33%;
+    margin-top: 8px;
+    justify-content: center;
+}
+
+.descricao {
+    background-color: #d4d4d4;
+    margin-top: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.descricao_user {
+    margin-left: 5px;
+    font: 400 1rem 'Poppins';
+    font-weight: bold;
+}
+
+.descricao_descricao {
+    margin-left: 15px;
+    font: 200 1rem 'Poppins';
+}
+
+.descricao_user_none {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font: 400 1rem 'Poppins';
+    font-weight: bold;
+    text-align: center;
 }

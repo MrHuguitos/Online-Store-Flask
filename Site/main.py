@@ -40,17 +40,21 @@ def home():
     page = request.args.get('page', 1, type=int)  # Página atual (por padrão, será a primeira página)
     offset = (page - 1) * PER_PAGE  # Obtém os itens da página atual
 
-    cursor.execute("SELECT produtos.nome, produtos.imagem, produtos.valor FROM produtos LEFT JOIN promocao ON produtos.cod = promocao.cod_produtos WHERE promocao.cod_produtos IS NULL ORDER BY valor DESC LIMIT %s OFFSET %s;", (PER_PAGE, offset))# Selecionar os valores da tabela produtos que NÃO tem correspondencia na tabela promocao
+    cursor.execute("SELECT produtos.nome, produtos.imagem, produtos.valor, AVG(avaliacao.nota), COUNT(avaliacao.nota) FROM produtos JOIN compra ON compra.cod_produtos = produtos.cod LEFT JOIN avaliacao ON avaliacao.compra_cod = compra.cod_compra LEFT JOIN promocao ON produtos.cod = promocao.cod_produtos WHERE promocao.cod_produtos IS NULL GROUP BY produtos.nome, produtos.imagem, produtos.valor ORDER BY valor DESC LIMIT %s OFFSET %s;", (PER_PAGE, offset))
 
     dados_produtos = []
     for linha in cursor.fetchall():
         nome_produto = linha[0]
         imagem_produto = base64.b64encode(linha[1]).decode('utf-8')
         valor_produto = str(linha[2]).replace('.', ',')
+        avaliacao = float(linha[3]) if linha[3] else None
+        quant_aval = linha[4] if linha[4] else 0
 
         produtos = {"nome": nome_produto,
                     "foto": imagem_produto,
-                    "valor": valor_produto}
+                    "valor": valor_produto,
+                    "avaliacao": avaliacao,
+                    "quantidade": quant_aval}
 
         dados_produtos.append(produtos)
 
@@ -75,17 +79,21 @@ def home_product(tipo):
     page = request.args.get('page', 1, type=int)  # Página atual (por padrão, será a primeira página)
     offset = (page - 1) * PER_PAGE  # Obtém os itens da página atual
 
-    cursor.execute("SELECT nome, imagem, valor FROM produtos LEFT JOIN promocao ON produtos.cod = promocao.cod_produtos WHERE promocao.cod_produtos IS NULL AND categoria = %s ORDER BY valor DESC LIMIT %s OFFSET %s;", (tipo, PER_PAGE, offset))
+    cursor.execute("SELECT produtos.nome, produtos.imagem, produtos.valor, AVG(avaliacao.nota), COUNT(avaliacao.nota) FROM produtos JOIN compra ON compra.cod_produtos = produtos.cod LEFT JOIN avaliacao ON avaliacao.compra_cod = compra.cod_compra LEFT JOIN promocao ON produtos.cod = promocao.cod_produtos WHERE promocao.cod_produtos IS NULL AND categoria = %s GROUP BY produtos.nome, produtos.imagem, produtos.valor ORDER BY valor DESC LIMIT %s OFFSET %s;", (tipo, PER_PAGE, offset))
 
     dados_produtos = []
     for linha in cursor.fetchall():
         nome_produto = linha[0]
         imagem_produto = base64.b64encode(linha[1]).decode('utf-8')
         valor_produto = str(linha[2]).replace('.', ',')
+        avaliacao = float(linha[3]) if linha[3] else None
+        quant_aval = linha[4] if linha[4] else 0
 
         produtos = {"nome": nome_produto,
                     "foto": imagem_produto,
-                    "valor": valor_produto}
+                    "valor": valor_produto,
+                    "avaliacao": avaliacao,
+                    "quantidade": quant_aval}
 
         dados_produtos.append(produtos)
 
@@ -109,7 +117,7 @@ def promocoes():
     page = request.args.get('page', 1, type=int)  # Página atual (por padrão, será a primeira página)
     offset = (page - 1) * PER_PAGE  # Obtém os itens da página atual
 
-    cursor.execute("SELECT produtos.nome, produtos.imagem, produtos.valor, promocao.desconto FROM produtos, promocao WHERE produtos.cod = promocao.cod_produtos ORDER BY valor DESC LIMIT %s OFFSET %s;", (PER_PAGE, offset)) # Selecionar os valores da tabela produtos que TEM correspondencia na tabela promocao
+    cursor.execute("SELECT produtos.nome, produtos.imagem, produtos.valor, promocao.desconto, AVG(avaliacao.nota), COUNT(avaliacao.nota) FROM produtos JOIN promocao ON produtos.cod = promocao.cod_produtos JOIN compra ON compra.cod_produtos = produtos.cod LEFT JOIN avaliacao ON avaliacao.compra_cod = compra.cod_compra GROUP BY produtos.nome, produtos.imagem, produtos.valor, promocao.desconto ORDER BY valor DESC LIMIT %s OFFSET %s;", (PER_PAGE, offset)) # Selecionar os valores da tabela produtos que TEM correspondencia na tabela promocao
 
     dados_produtos = []
     for linha in cursor.fetchall():
@@ -118,12 +126,17 @@ def promocoes():
         valor_produto = str(linha[2]).replace('.', ',')
         desconto = str("{:.0f}".format(linha[3] * 100))
         valor_desconto = str("{:.2f}".format(linha[2] * (1 - linha[3]))).replace('.', ',')
+        avaliacao = float(linha[4]) if linha[4] else None
+        quant_aval = linha[5] if linha[5] else 0
+
 
         produtos = {"nome": nome_produto,
                     "foto": imagem_produto,
                     "valor": valor_produto,
                     "desconto": desconto,
-                    "novo_valor": valor_desconto}
+                    "novo_valor": valor_desconto,
+                    "avaliacao": avaliacao,
+                    "quantidade": quant_aval}
 
         dados_produtos.append(produtos)
 
@@ -217,7 +230,7 @@ def usuario():
 
 @app.route('/produto/<nome>', methods=['GET'])  # Produto
 def mostrar_produtos(nome):
-    cursor.execute("SELECT produtos.nome, produtos.valor, produtos.quantidade, produtos.categoria, produtos.imagem, produtos.cod, promocao.desconto FROM produtos LEFT JOIN promocao ON promocao.cod_produtos = produtos.cod WHERE produtos.nome = %s;", (nome, ))
+    cursor.execute("SELECT produtos.nome, produtos.valor, produtos.quantidade, produtos.categoria, produtos.imagem, produtos.cod, promocao.desconto, AVG(avaliacao.nota), COUNT(avaliacao.nota) FROM produtos LEFT JOIN promocao ON produtos.cod = promocao.cod_produtos JOIN compra ON compra.cod_produtos = produtos.cod LEFT JOIN avaliacao ON avaliacao.compra_cod = compra.cod_compra WHERE produtos.nome = %s GROUP BY produtos.nome, produtos.valor, produtos.quantidade, produtos.categoria, produtos.imagem, produtos.cod, promocao.desconto;", (nome, ))
     linha = cursor.fetchone()
 
     nome_prod = linha[0]
@@ -226,15 +239,34 @@ def mostrar_produtos(nome):
     categoria_prod = linha[3]
     foto_prod = base64.b64encode(linha[4]).decode('utf-8') # Converter os dados binários em uma imagem
     cod_prod = linha[5]
+    nota_prod = float(linha[7]) if linha[7] else None
+    quant_aval = linha[8] if linha[8] else 0
 
-    return render_template("produto.html", nome2 = nome_prod, valor2 = valor_prod, quantidade2 = quantidade_prod, categoria2 = categoria_prod, foto2 = foto_prod, codigo2 = cod_prod)
+    produto = {
+        "nota": nota_prod,
+        "quantidade": quant_aval}
+    
+    avaliacoes = []
+    
+    cursor.execute("SELECT avaliacao.descricao, avaliacao.nota, cliente.nome, compra.data FROM avaliacao JOIN compra ON compra.cod_compra = avaliacao.compra_cod JOIN produtos ON produtos.cod = compra.cod_produtos JOIN cliente ON cliente.email = compra.email_cliente WHERE produtos.nome = %s ORDER BY compra.data DESC;", (nome, ))
+    linha2 = cursor.fetchall()
+
+    for info in linha2:
+        descricao, nota, nome_cliente, data_compra = info
+        avaliacoes.append({
+            'nome_cliente': nome_cliente,
+            'data_compra': corrigir_data(data_compra),
+            'descricao': descricao,
+            'nota': float(nota)})
+
+    return render_template("produto.html", nome2 = nome_prod, valor2 = valor_prod, quantidade2 = quantidade_prod, categoria2 = categoria_prod, foto2 = foto_prod, codigo2 = cod_prod, produto = produto, avaliacoes = avaliacoes)
 
 @app.route('/produto', methods=['GET', 'POST'])  # Produto pesquisado
 def mostrar_produto_pesquisado():
     if request.method == 'POST':
         nomeproduto = request.form['search']
 
-        cursor.execute("SELECT produtos.nome, produtos.valor, produtos.quantidade, produtos.categoria, produtos.imagem, produtos.cod, promocao.desconto FROM produtos LEFT JOIN promocao ON promocao.cod_produtos = produtos.cod WHERE produtos.nome = %s;", (nomeproduto, ))
+        cursor.execute("SELECT produtos.nome, produtos.valor, produtos.quantidade, produtos.categoria, produtos.imagem, produtos.cod, promocao.desconto, AVG(avaliacao.nota), COUNT(avaliacao.nota) FROM produtos LEFT JOIN promocao ON produtos.cod = promocao.cod_produtos JOIN compra ON compra.cod_produtos = produtos.cod LEFT JOIN avaliacao ON avaliacao.compra_cod = compra.cod_compra WHERE produtos.nome = %s GROUP BY produtos.nome, produtos.valor, produtos.quantidade, produtos.categoria, produtos.imagem, produtos.cod, promocao.desconto;", (nomeproduto, ))
         linha = cursor.fetchone()
 
         if linha:
@@ -244,8 +276,27 @@ def mostrar_produto_pesquisado():
             categoria_prod = linha[3]
             foto_prod = base64.b64encode(linha[4]).decode('utf-8') # Converter os dados binários em uma imagem
             cod_prod = linha[5]
+            nota_prod = float(linha[7]) if linha[7] else None
+            quant_aval = linha[8] if linha[8] else 0
 
-            return render_template("produto.html", nome2 = nome_prod, valor2 = valor_prod, quantidade2 = quantidade_prod, categoria2 = categoria_prod, foto2 = foto_prod, codigo2 = cod_prod)
+            produto = {
+                "nota": nota_prod,
+                "quantidade": quant_aval}
+
+            avaliacoes = []
+    
+            cursor.execute("SELECT avaliacao.descricao, avaliacao.nota, cliente.nome, compra.data FROM avaliacao JOIN compra ON compra.cod_compra = avaliacao.compra_cod JOIN produtos ON produtos.cod = compra.cod_produtos JOIN cliente ON cliente.email = compra.email_cliente WHERE produtos.nome = %s ORDER BY compra.data DESC;", (nomeproduto, ))
+            linha2 = cursor.fetchall()
+
+            for info in linha2:
+                descricao, nota, nome_cliente, data_compra = info
+                avaliacoes.append({
+                    'nome_cliente': nome_cliente,
+                    'data_compra': corrigir_data(data_compra),
+                    'descricao': descricao,
+                    'nota': float(nota)}) 
+
+            return render_template("produto.html", nome2 = nome_prod, valor2 = valor_prod, quantidade2 = quantidade_prod, categoria2 = categoria_prod, foto2 = foto_prod, codigo2 = cod_prod, produto = produto, avaliacoes = avaliacoes)
         else:
             return redirect(url_for('home'))
     else:
@@ -346,27 +397,54 @@ def comprados():
 
     user_id = session['user_id']
 
-    cursor.execute("SELECT produtos.nome, produtos.cod, produtos.imagem, compra.valor, compra.data FROM produtos, compra WHERE compra.cod_produtos = produtos.cod AND compra.email_cliente = %s ORDER BY compra.cod_compra DESC;", (user_id,))
+    cursor.execute("SELECT produtos.nome, compra.cod_compra, produtos.imagem, compra.valor, compra.data, avaliacao.nota FROM produtos JOIN compra ON compra.cod_produtos = produtos.cod LEFT JOIN avaliacao ON avaliacao.compra_cod = compra.cod_compra WHERE compra.email_cliente = %s ORDER BY compra.cod_compra DESC;", (user_id,))
+
     resultados = cursor.fetchall()
 
     dados_compra = []
 
     for linha in resultados:
         nome_produto = linha[0]
-        cod_produto = linha[1]
+        cod_compra = linha[1]
         imagem_produto = base64.b64encode(linha[2]).decode('utf-8')
         valor_compra = str(linha[3]).replace('.', ',')
         data_compra = corrigir_data(linha[4])
+        avaliacao = linha[5] if linha[5] else None
 
         produtos = {"nome": nome_produto,
-                    "codigo": cod_produto,
+                    "codigo_compra": cod_compra,
                     "foto": imagem_produto,
                     "valor": valor_compra,
-                    "data": data_compra}
+                    "data": data_compra,
+                    "avaliacao": avaliacao}
 
         dados_compra.append(produtos)
 
     return render_template("compras.html", products=dados_compra)
+
+@app.route('/avaliar/<cod>', methods=['POST'])   # Verificar compras feitas
+def avaliar(cod):
+    texto = request.form['avalie']
+    estrela = request.form['estrela']
+
+    if estrela:
+        cursor.execute("INSERT INTO avaliacao VALUES (%s, %s, %s);", (cod, estrela, texto))
+        banco.commit()
+        return redirect(url_for('home', mensagem = "Compra avaliada com sucesso!"))
+    else:
+        return redirect(url_for('carrinho', mensagem = "Avaliação inválida!"))
+    
+@app.route('/reavaliar/<cod>', methods=['POST'])   # Verificar compras feitas
+def reavaliar(cod):
+    texto = request.form['avalie']
+    estrela = request.form['estrela']
+
+    if estrela:
+        cursor.execute("UPDATE avaliacao SET nota = %s, descricao = %s WHERE compra_cod = %s;", (estrela, texto, cod))
+        banco.commit()
+        return redirect(url_for('home', mensagem = "Compra avaliada com sucesso!"))
+    else:
+        return redirect(url_for('carrinho', mensagem = "Avaliação inválida!"))
 
 if __name__ == "__main__":
     app.run(debug=True)

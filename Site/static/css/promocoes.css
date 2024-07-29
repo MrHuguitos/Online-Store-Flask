@@ -452,7 +452,7 @@ p {
 }
 
 .read-value {
-    margin-top: 18px;
+    margin-top: 8px;
     font-size: 20px;
 }
 
@@ -464,11 +464,41 @@ p {
 
 .read-value-old {
     color: rgb(250, 99, 99);
-    margin-top: 10px;
+    margin-top: 5px;
     font-size: 15px;
 }
 
 .read-desconto{
-    margin-top: 10px;
+    margin-top: 5px;
     font-size: 15px;
+}
+
+.star {
+    font-size: 15px;
+    color: #ddd;
+    position: relative;
+    display: inline-block;
+}
+
+.star-filled {
+    color: var(--cor_primaria);
+}
+
+.star-half::before {
+    content: '\2605'; /* Unicode para a estrela preenchida */
+    color: var(--cor_primaria);
+    position: absolute;
+    left: 0;
+    width: 50%;
+    overflow: hidden;
+}
+
+.estrelas-geral span {
+    font-size: 15px;
+    font-family: "Source Code Pro", monospace;
+    font-weight: bold;
+}
+
+.avaliacao-geral {
+    margin-left: 30%;
 }

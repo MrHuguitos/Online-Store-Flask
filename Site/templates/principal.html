@@ -400,6 +400,27 @@
                     <img src="data:image/jpeg;base64,{{ produto.foto }}" alt="Foto do Pokémon">
                 </figure>
                 <div class="article-preview">
+                    <div class="avaliacao-geral">
+                        <div class="estrelas-geral">
+                            {% if produto.avaliacao is not none %}
+                                {% set avaliacao_arredondada = produto.avaliacao|round(1, 'floor') %}
+                                {% for i in range(1, 6) %}
+                                    {% if i <= produto.avaliacao %}
+                                        <span class="star star-filled">&#9733;</span>
+                                    {% elif i == avaliacao_arredondada + 0.5 %}
+                                        <span class="star star-half">&#9733;</span>
+                                    {% else %}
+                                        <span class="star">&#9733;</span>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {% for i in range(1, 6) %}
+                                    <span class="star">&#9733;</span>
+                                {% endfor %}
+                            {% endif %}
+                            <span>({{ produto.quantidade }})</span>
+                        </div>
+                    </div>
                     <p class="read-product">{{ produto.nome }}</p>
                     <p class="read-value-old"><s>R$ {{ produto.valor }}</s></p>
                     <p class="read-desconto">-{{ produto.desconto }}%</p>
@@ -424,6 +445,27 @@
                     <img src="data:image/jpeg;base64,{{ produto.foto }}" alt="Foto do Pokémon">
                 </figure>
                 <div class="article-preview">
+                    <div class="avaliacao-geral">
+                        <div class="estrelas-geral">
+                            {% if produto.avaliacao is not none %}
+                                {% set avaliacao_arredondada = produto.avaliacao|round(1, 'floor') %}
+                                {% for i in range(1, 6) %}
+                                    {% if i <= produto.avaliacao %}
+                                        <span class="star star-filled">&#9733;</span>
+                                    {% elif i == avaliacao_arredondada + 0.5 %}
+                                        <span class="star star-half">&#9733;</span>
+                                    {% else %}
+                                        <span class="star">&#9733;</span>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {% for i in range(1, 6) %}
+                                    <span class="star">&#9733;</span>
+                                {% endfor %}
+                            {% endif %}
+                            <span>({{ produto.quantidade }})</span>
+                        </div>
+                    </div>
                     <p class="read-product">{{ produto.nome }}</p>
                     <p class="read-value">R$ {{ produto.valor }}</p>
                     <a href="{{ url_for('mostrar_produtos', nome=produto.nome) }}" class="btn">Detalhes</a>

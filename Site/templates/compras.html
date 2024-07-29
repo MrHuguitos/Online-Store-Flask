@@ -9,7 +9,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/compras.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap"
+        rel="stylesheet">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/compras.js') }}"></script>
 </head>
 
 <body>
@@ -30,11 +33,60 @@
                     <h4>{{ produto.nome }}</h4>
                     <div class="detalhes">
                         <div class="codigo">
-                            <input type="hidden" name="codigos" value="{{ produto.codigo }}">
+                            <input type="hidden" name="codigos" value="{{ produto.codigo_compra }}"> <!-- Código de compra do produto -->
                         </div>
                     </div>
                     <div class="preco">
                         <p>Valor total: R$ {{ produto.valor }}</p>
+                        {% if produto.avaliacao is none %}
+                        <button class="avaliar" type="button">Avaliar</button>
+                        <dialog>
+                            <h2>Avalie Sua Compra</h2>
+                            <form method="POST" action="{{ url_for('avaliar', cod=produto.codigo_compra) }}">
+                                <div class="estrelas">
+                                    <input type="radio" id="estrela-1" name="estrela" value="1">
+                                    <label for="estrela-1" class="star">&#9733;</label>
+                                    <input type="radio" id="estrela-2" name="estrela" value="2">
+                                    <label for="estrela-2" class="star">&#9733;</label>
+                                    <input type="radio" id="estrela-3" name="estrela" value="3">
+                                    <label for="estrela-3" class="star">&#9733;</label>
+                                    <input type="radio" id="estrela-4" name="estrela" value="4">
+                                    <label for="estrela-4" class="star">&#9733;</label>
+                                    <input type="radio" id="estrela-5" name="estrela" value="5">
+                                    <label for="estrela-5" class="star">&#9733;</label>
+                                </div>
+                                <input type="text" name="avalie" id="avalie" maxlength="100" placeholder="Escreva sua experiencia com o produto...">
+                                <div class="button-center">
+                                    <button type="submit" class="confirmar">Confirmar</button>
+                                    <button type="button" class="fechar">Cancelar</button>
+                                </div>
+                            </form>
+                        </dialog>
+                        {% else %}
+                        <button class="avaliar" type="button">Reavaliar</button>
+                        <dialog>
+                            <h2>Reavalie Sua Compra</h2>
+                            <form method="POST" action="{{ url_for('reavaliar', cod=produto.codigo_compra) }}">
+                                <div class="estrelas">
+                                    <input type="radio" id="estrela-1" name="estrela" value="1">
+                                    <label for="estrela-1" class="star">&#9733;</label>
+                                    <input type="radio" id="estrela-2" name="estrela" value="2">
+                                    <label for="estrela-2" class="star">&#9733;</label>
+                                    <input type="radio" id="estrela-3" name="estrela" value="3">
+                                    <label for="estrela-3" class="star">&#9733;</label>
+                                    <input type="radio" id="estrela-4" name="estrela" value="4">
+                                    <label for="estrela-4" class="star">&#9733;</label>
+                                    <input type="radio" id="estrela-5" name="estrela" value="5">
+                                    <label for="estrela-5" class="star">&#9733;</label>
+                                </div>
+                                <input type="text" name="avalie" id="avalie" maxlength="100" placeholder="Escreva sua experiencia com o produto...">
+                                <div class="button-center">
+                                    <button type="submit" class="confirmar">Confirmar</button>
+                                    <button type="button" class="fechar">Cancelar</button>
+                                </div>
+                            </form>
+                        </dialog>
+                        {% endif %}
                         <div class="contador">
                             <span>Comprado em: {{ produto.data }}</span>
                         </div>

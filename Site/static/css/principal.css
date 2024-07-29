@@ -462,3 +462,33 @@ p {
     font-family: "Source Code Pro", monospace;
     font-weight: bold;
 }
+
+.star {
+    font-size: 15px;
+    color: #ddd;
+    position: relative;
+    display: inline-block;
+}
+
+.star-filled {
+    color: var(--cor_primaria);
+}
+
+.star-half::before {
+    content: '\2605'; /* Unicode para a estrela preenchida */
+    color: var(--cor_primaria);
+    position: absolute;
+    left: 0;
+    width: 50%;
+    overflow: hidden;
+}
+
+.estrelas-geral span {
+    font-size: 15px;
+    font-family: "Source Code Pro", monospace;
+    font-weight: bold;
+}
+
+.avaliacao-geral {
+    margin-left: 30%;
+}
