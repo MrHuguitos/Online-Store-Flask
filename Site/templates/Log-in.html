@@ -16,6 +16,10 @@
                 <div>
                     <input type="email" name="mail" id="mail" placeholder="xxxx.xxxx@gmail.com" maxlength="100" required>
                 </div>
+                <label>CPF:</label>
+                <div>
+                    <input type="text" name="cpf" id="cpf" placeholder="XXX.XXX.XXX-XX" required oninput="formatarCPF()" maxlength="14">
+                </div>
                 <label>Senha:</label>
                 <div>
                     <input type="password" name="senha" id="senha" placeholder="*********" title="Minimo de 6 caracteres com pelo menos 1 letra e 1 número" pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$" required>
@@ -33,6 +37,16 @@
             setTimeout(function() {
                 window.close();
             }, 3000);
+            function formatarCPF() {
+                var cpf = document.getElementById("cpf");
+                var valor = cpf.value.replace(/\D/g, "");
+                var padrao = /^(\d{0,3})(\d{0,3})(\d{0,3})(\d{0,2})$/;
+                if (padrao.test(valor)) {
+                    cpf.value = RegExp.$1 + "." + RegExp.$2 + "." + RegExp.$3 + "-" + RegExp.$4;
+                } else {
+                    cpf.value = valor;
+                }
+            }
         </script>
     </body>
 </html>
