@@ -163,3 +163,92 @@ def save_product(codigo, user_id, quantidade):
         conexao.close()
 
     return mensagem
+
+def carrinho_info(user_id):
+    conexao, cursor = db.conexao()
+    try:
+        cursor.execute("SELECT produtos.nome, produtos.cod, produtos.imagem, produtos.valor, carrinho.quantidade, promocao.desconto FROM produtos JOIN carrinho ON carrinho.cod_produtos = produtos.cod LEFT JOIN promocao ON promocao.cod_produtos = produtos.cod WHERE carrinho.email_cliente = %s;", (user_id,))
+        linha = cursor.fetchall()
+    finally:
+        cursor.close()
+        conexao.close()
+
+    return linha
+
+def atualizar_quant(new_quantity, user_id, product_id):
+    conexao, cursor = db.conexao()
+    try:
+        cursor.execute("UPDATE carrinho SET quantidade = %s WHERE email_cliente = %s AND cod_produtos = %s;",(new_quantity, user_id, product_id))
+        conexao.commit()
+        mensagem = True
+    except:
+        mensagem = False
+    finally:
+        cursor.close()
+        conexao.close()
+
+    return mensagem
+
+def compra_produtos(codigo, user_id):
+    conexao, cursor = db.conexao()
+    try:
+        cursor.execute("SELECT produtos.valor, carrinho.quantidade, produtos.quantidade, promocao.desconto FROM produtos JOIN carrinho ON carrinho.cod_produtos = produtos.cod LEFT JOIN promocao ON promocao.cod_produtos = produtos.cod WHERE carrinho.cod_produtos = %s AND carrinho.email_cliente = %s;", (codigo, user_id))
+        linha = cursor.fetchone()
+    finally:
+        cursor.close()
+        conexao.close()
+
+    return linha
+
+def finalizar_compra(user_id, codigo, valor_total, data, estoque):
+    conexao, cursor = db.conexao()
+    try:
+        cursor.execute("INSERT INTO compra(email_cliente, cod_produtos, valor, data) VALUES (%s, %s, %s, %s);", (user_id, codigo, valor_total, data))
+        cursor.execute("DELETE FROM carrinho WHERE cod_produtos = %s AND email_cliente = %s;", (codigo, user_id))
+        cursor.execute("UPDATE produtos SET quantidade = %s WHERE cod = %s;", (estoque, codigo))
+        conexao.commit()
+        sucesso = True
+    except Exception as e:
+        sucesso = f"Ocorreu um erro: {e}. Tente novamente mais tarde."
+    finally:
+        cursor.close()
+        conexao.close()
+
+    return sucesso
+
+def verificar_compras(user_id):
+    conexao, cursor = db.conexao()
+    try:
+        cursor.execute("SELECT produtos.nome, compra.cod_compra, produtos.imagem, compra.valor, compra.data, avaliacao.nota FROM produtos JOIN compra ON compra.cod_produtos = produtos.cod LEFT JOIN avaliacao ON avaliacao.compra_cod = compra.cod_compra WHERE compra.email_cliente = %s ORDER BY compra.cod_compra DESC;", (user_id,))
+        linha = cursor.fetchall()
+    finally:
+        cursor.close()
+        conexao.close()
+
+    return linha
+
+def inserir_aval(cod, estrela, texto, funcao):
+    conexao, cursor = db.conexao()
+
+    if funcao == "avaliar":
+        try:
+            cursor.execute("INSERT INTO avaliacao VALUES (%s, %s, %s);", (cod, estrela, texto))
+            conexao.commit()
+            sucesso = True
+        except Exception as e:
+            sucesso = f"Ocorreu um erro: {e}. Tente novamente mais tarde."
+        finally:
+            cursor.close()
+            conexao.close()
+    else:
+        try:
+            cursor.execute("UPDATE avaliacao SET nota = %s, descricao = %s WHERE compra_cod = %s;", (estrela, texto, cod))
+            conexao.commit()
+            sucesso = True
+        except Exception as e:
+            sucesso = f"Ocorreu um erro: {e}. Tente novamente mais tarde."
+        finally:
+            cursor.close()
+            conexao.close()
+
+    return sucesso

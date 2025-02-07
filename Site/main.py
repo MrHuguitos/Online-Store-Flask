@@ -1,9 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_paginate import Pagination
-from datetime import date
 import os
-import datetime
 import src.models.models as models
 import src.dbconfig.dbconfig as db
 import src.etc.corrigir as corrigir
@@ -119,149 +116,32 @@ def save_product(codigo):
 
 @app.route('/carrinho', methods=['GET'])  # Verificar carrinho
 def carrinho():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-
-    user_id = session['user_id']
-    dados_carrinho = []
-    total = 0
-
-    db.execute("SELECT produtos.nome, produtos.cod, produtos.imagem, produtos.valor, carrinho.quantidade, promocao.desconto FROM produtos JOIN carrinho ON carrinho.cod_produtos = produtos.cod LEFT JOIN promocao ON promocao.cod_produtos = produtos.cod WHERE carrinho.email_cliente = %s;", (user_id,))
-
-    for linha in db.fetchall():
-        nome_produto = linha[0]
-        cod_produto = linha[1]
-        imagem_produto = base64.b64encode(linha[2]).decode('utf-8')
-        valor_produto = str("{:.2f}".format(linha[3] * (1 - linha[5]))).replace(
-            '.', ',') if linha[5] else str(linha[3]).replace('.', ',')
-        quant_produto = linha[4]
-        total += ((linha[3] * (1 - linha[5])) * linha[4]
-                  ) if linha[5] else (linha[3] * linha[4])
-
-        produtos = {"nome": nome_produto,
-                    "codigo": cod_produto,
-                    "foto": imagem_produto,
-                    "valor": valor_produto,
-                    "quantidade": quant_produto}
-
-        dados_carrinho.append(produtos)
-    mensagem = request.args.get('mensagem', '')
-
-    return render_template("carrinho.html", products=dados_carrinho, total=str(total).replace('.', ','), mensagem=mensagem)
+    return controller.carrinho()
 
 
-# Atualizar quantidade de produtos no carrinho
-@app.route('/update-quantity', methods=['POST'])
+@app.route('/update-quantity', methods=['POST']) # Atualizar quantidade de produtos no carrinho
 def update_quantity():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Not logged in'}), 401
-
-    user_id = session['user_id']
-    data = request.get_json()
-    product_id = data['product_id']
-    new_quantity = data['quantity']
-
-    db.execute("UPDATE carrinho SET quantidade = %s WHERE email_cliente = %s AND cod_produtos = %s;",
-               (new_quantity, user_id, product_id))
-    banco.commit()
-
-    return jsonify({'success': True, 'new_quantity': new_quantity}), 200
+    return controller.put_quantidade()
 
 
 @app.route('/comprar', methods=['POST'])  # Realizar compra
 def comprar():
-    cpf = corrigir.corrigir_input(request.form['cpf'])
-    senha = request.form['senha']
-    user_id = session['user_id']
-    codigos = request.form.getlist('codigos')
-
-    hoje = datetime.date.today()
-
-    db.execute(
-        "SELECT senha FROM cliente WHERE email = %s AND cpf = %s;", (user_id, cpf))
-    linha = db.fetchone()
-
-    if linha and check_password_hash(linha[0], senha):
-        for i in codigos:
-            db.execute("SELECT produtos.valor, carrinho.quantidade, produtos.quantidade, promocao.desconto FROM produtos JOIN carrinho ON carrinho.cod_produtos = produtos.cod LEFT JOIN promocao ON promocao.cod_produtos = produtos.cod WHERE carrinho.cod_produtos = %s AND carrinho.email_cliente = %s;", (i, user_id))
-            linha = db.fetchone()
-
-            valor_total = float("{:.2f}".format(
-                linha[0] * (1 - linha[3]))) * linha[1] if linha[3] else linha[0] * linha[1]
-            estoque = linha[2] - linha[1]
-
-            db.execute(
-                "INSERT INTO compra(email_cliente, cod_produtos, valor, data) VALUES (%s, %s, %s, %s);", (user_id, i, valor_total, hoje))
-            db.execute(
-                "DELETE FROM carrinho WHERE cod_produtos = %s AND email_cliente = %s;", (i, user_id))
-            db.execute(
-                "UPDATE produtos SET quantidade = %s WHERE cod = %s;", (estoque, i))
-            banco.commit()
-
-        return redirect(url_for('home', mensagem="Compra realizada com sucesso!"))
-    else:
-        return redirect(url_for('carrinho', mensagem="Dados incorretos! Tente novamente mais tarde."))
+    return controller.comprar_produto()
 
 
 @app.route('/comprados', methods=['GET'])   # Verificar compras feitas
 def comprados():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-
-    user_id = session['user_id']
-
-    db.execute("SELECT produtos.nome, compra.cod_compra, produtos.imagem, compra.valor, compra.data, avaliacao.nota FROM produtos JOIN compra ON compra.cod_produtos = produtos.cod LEFT JOIN avaliacao ON avaliacao.compra_cod = compra.cod_compra WHERE compra.email_cliente = %s ORDER BY compra.cod_compra DESC;", (user_id,))
-
-    resultados = db.fetchall()
-
-    dados_compra = []
-
-    for linha in resultados:
-        nome_produto = linha[0]
-        cod_compra = linha[1]
-        imagem_produto = base64.b64encode(linha[2]).decode('utf-8')
-        valor_compra = str(linha[3]).replace('.', ',')
-        data_compra = corrigir_data(linha[4])
-        avaliacao = linha[5] if linha[5] else None
-
-        produtos = {"nome": nome_produto,
-                    "codigo_compra": cod_compra,
-                    "foto": imagem_produto,
-                    "valor": valor_compra,
-                    "data": data_compra,
-                    "avaliacao": avaliacao}
-
-        dados_compra.append(produtos)
-
-    return render_template("compras.html", products=dados_compra)
+    return controller.historico()
 
 
-@app.route('/avaliar/<cod>', methods=['POST'])   # Verificar compras feitas
+@app.route('/avaliar/<cod>', methods=['POST'])   # Avaliar Produtos
 def avaliar(cod):
-    texto = request.form['avalie']
-    estrela = request.form['estrela']
-
-    if estrela:
-        db.execute(
-            "INSERT INTO avaliacao VALUES (%s, %s, %s);", (cod, estrela, texto))
-        banco.commit()
-        return redirect(url_for('home', mensagem="Compra avaliada com sucesso!"))
-    else:
-        return redirect(url_for('carrinho', mensagem="Avaliação inválida!"))
+    return controller.avaliar(cod, "avaliar")
 
 
-@app.route('/reavaliar/<cod>', methods=['POST'])   # Verificar compras feitas
+@app.route('/reavaliar/<cod>', methods=['POST'])   # Editar avaliacao
 def reavaliar(cod):
-    texto = request.form['avalie']
-    estrela = request.form['estrela']
-
-    if estrela:
-        db.execute(
-            "UPDATE avaliacao SET nota = %s, descricao = %s WHERE compra_cod = %s;", (estrela, texto, cod))
-        banco.commit()
-        return redirect(url_for('home', mensagem="Compra avaliada com sucesso!"))
-    else:
-        return redirect(url_for('carrinho', mensagem="Avaliação inválida!"))
+    return controller.avaliar(cod, "reavaliar")
 
 
 if __name__ == "__main__":

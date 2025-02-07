@@ -1,6 +1,8 @@
 import base64
+import datetime
 import src.models.models as models
 import src.etc.corrigir as corrigir
+from datetime import date
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 
@@ -122,3 +124,127 @@ def salvar_produtos(codigo):
     dados = models.save_product(codigo, user_id, quantidade)
 
     return redirect(url_for('home', mensagem=dados))
+
+# Carrinho
+def carrinho():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    dados_carrinho = []
+    total = 0
+
+    dados = models.carrinho_info(user_id)
+
+    for linha in dados:
+        nome = linha[0]
+        codigo = linha[1]
+        imagem = base64.b64encode(linha[2]).decode('utf-8')
+        valor = str("{:.2f}".format(linha[3] * (1 - linha[5]))).replace('.', ',') if linha[5] else str(linha[3]).replace('.', ',')
+        quantidade = linha[4]
+        total += ((linha[3] * (1 - linha[5])) * linha[4]) if linha[5] else (linha[3] * linha[4]) # Soma do valor de todos os itens no carrinho
+
+        produtos = {"nome": nome,
+                    "codigo": codigo,
+                    "foto": imagem,
+                    "valor": valor,
+                    "quantidade": quantidade}
+
+        dados_carrinho.append(produtos)
+
+    mensagem = request.args.get('mensagem', '')
+
+    return render_template("carrinho.html", products=dados_carrinho, total=str(total).replace('.', ','), mensagem=mensagem)
+
+# Atualizar quantidade
+def put_quantidade():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    data = request.get_json()
+    product_id = data['product_id']
+    new_quantity = data['quantity']
+
+    dados = models.atualizar_quant(new_quantity, user_id, product_id)
+
+    if dados == True:
+        return jsonify({'success': True, 'new_quantity': new_quantity}), 200
+    else:
+        return jsonify({'success': False, 'new_quantity': new_quantity}), 500
+
+# Realizar compra
+def comprar_produto():
+    cpf = corrigir.corrigir_input(request.form['cpf'])
+    senha = request.form['senha']
+    user_id = session['user_id']
+    codigos = request.form.getlist('codigos') # Obter o código de todos os produtos do carrinho
+    hoje = datetime.date.today() # Obter a data de hoje
+
+    dados = models.login_user(user_id, cpf)
+
+    if dados and check_password_hash(dados[2], senha):
+        for i in codigos:
+            dados2 = models.compra_produtos(i, user_id)
+            valor_total = float("{:.2f}".format(dados2[0] * (1 - dados2[3]))) * dados2[1] if dados2[3] else dados2[0] * dados2[1]
+            estoque = dados2[2] - dados2[1]
+            compra = models.finalizar_compra(user_id, i, valor_total, hoje, estoque)
+
+            if compra != True:
+                return redirect(url_for('home', mensagem=compra))
+            else:
+                pass
+
+        return redirect(url_for('home', mensagem="Compras realizadas com sucesso!"))
+    else:
+        return redirect(url_for('carrinho', mensagem="Dados incorretos! Tente novamente mais tarde."))
+
+# Histórico de compras
+def historico():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    dados_compra = []
+    user_id = session['user_id']
+    dados = models.verificar_compras(user_id)
+
+    for linha in dados:
+        nome = linha[0]
+        codigo = linha[1]
+        imagem = base64.b64encode(linha[2]).decode('utf-8')
+        valor = str(linha[3]).replace('.', ',')
+        data = corrigir.corrigir_data(linha[4])
+        avaliacao = linha[5] if linha[5] else None
+
+        produtos = {"nome": nome,
+                    "codigo_compra": codigo,
+                    "foto": imagem,
+                    "valor": valor,
+                    "data": data,
+                    "avaliacao": avaliacao}
+
+        dados_compra.append(produtos)
+
+    return render_template("compras.html", products=dados_compra)
+
+# Avaliar Produto
+def avaliar(cod, funcao):
+    texto = request.form['avalie']
+    estrela = request.form['estrela']
+
+    if (estrela) and (funcao == "avaliar"):
+        dados = models.inserir_aval(cod, estrela, texto, "avaliar")
+
+        if dados != True:
+            return redirect(url_for('home', mensagem=dados))
+        else:
+            return redirect(url_for('home', mensagem="Compra avaliada com sucesso!"))
+    elif (estrela) and (funcao == "reavaliar"):
+        dados = models.inserir_aval(cod, estrela, texto, "reavaliar")
+
+        if dados != True:
+            return redirect(url_for('home', mensagem=dados))
+        else:
+            return redirect(url_for('home', mensagem="Compra avaliada com sucesso!"))
+    else:
+        return redirect(url_for('carrinho', mensagem="Avaliação inválida!"))
