@@ -1,8 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session
 import os
-import src.models.models as models
-import src.dbconfig.dbconfig as db
-import src.etc.corrigir as corrigir
 import src.controller.controller as controller
 
 app = Flask(__name__)
@@ -26,16 +23,12 @@ def promocoes():
 
 @app.route('/sign-up', methods=['GET', 'POST'])  # Cadastro de usuários
 def cadastro():
-    if request.method == 'POST':
-        return controller.sigup()
-    return render_template("sign-up.html")
+    return controller.sigup()
 
 
 @app.route('/log-in', methods=['GET', 'POST'])  # Login do usuário
 def login():
-    if request.method == 'POST':
-        return controller.login()
-    return render_template("log-in.html")
+    return controller.login()
 
 
 @app.route('/log-out')  # Logout do usuário
@@ -57,17 +50,13 @@ def mostrar_produtos(nome):
 @app.route('/produto', methods=['GET', 'POST'])  # Produto pesquisado
 def mostrar_produto_pesquisado():
     if request.method == 'POST':
-        nome = request.form['search']
-        return controller.produto(nome)
+        return controller.produto(request.form['search'])
     else:
         return render_template("produto.html", nome2="", valor2="", quantidade2="", categoria2="", foto2="", codigo2="")
 
 
 @app.route('/save-product/<codigo>', methods=['POST'])  # Salvar o produto no carrinho
 def save_product(codigo):
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-
     return controller.salvar_produtos(codigo)
 
 

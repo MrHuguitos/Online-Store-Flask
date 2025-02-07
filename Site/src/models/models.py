@@ -1,6 +1,5 @@
 import src.dbconfig.dbconfig as db
 import src.etc.corrigir as corrigir
-import src.controller.controller as controller
 
 def user_verification(user_id):
     conexao, cursor = db.conexao()    # Obtém conexão e cursor

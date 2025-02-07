@@ -78,39 +78,43 @@ def listar_produtos(tipo, promocao):
 
 # Sig-up
 def sigup():
-    email = request.form['mail']
-    cpf = corrigir.corrigir_input(request.form['cpf'])
-    nome = request.form['nome']
-    nascimento = request.form['nascimento']
-    estado = request.form['state']
-    cidade = request.form['city']
-    bairro = request.form['district']
-    rua = request.form['street']
-    numero = request.form['number']
-    senha = generate_password_hash(request.form['senha'])  # Criptografar senha
-    telefone = request.form.getlist('phone')
-    imagem = request.files['imagem']
-    img_bin = imagem.read()
+    if request.method == 'POST':
+        email = request.form['mail']
+        cpf = corrigir.corrigir_input(request.form['cpf'])
+        nome = request.form['nome']
+        nascimento = request.form['nascimento']
+        estado = request.form['state']
+        cidade = request.form['city']
+        bairro = request.form['district']
+        rua = request.form['street']
+        numero = request.form['number']
+        senha = generate_password_hash(request.form['senha'])  # Criptografar senha
+        telefone = request.form.getlist('phone')
+        imagem = request.files['imagem']
+        img_bin = imagem.read()
 
-    if (models.verificar_cadastro(email, cpf)) == True:
-        return redirect(url_for('home', mensagem="O usuário já existe!"))
-    else:
-        text = models.cadastrar_user(email, cpf, senha, nome, estado, cidade, bairro, rua, numero, nascimento, img_bin, telefone)
-        return redirect(url_for('home', mensagem=text))
+        if (models.verificar_cadastro(email, cpf)) == True:
+            return redirect(url_for('home', mensagem="O usuário já existe!"))
+        else:
+            text = models.cadastrar_user(email, cpf, senha, nome, estado, cidade, bairro, rua, numero, nascimento, img_bin, telefone)
+            return redirect(url_for('home', mensagem=text))
+    return render_template("sign-up.html")
 
 # Login
 def login():
-    email = request.form['mail']
-    cpf = corrigir.corrigir_input(request.form['cpf'])
-    senha = request.form['senha']
+    if request.method == 'POST':
+        email = request.form['mail']
+        cpf = corrigir.corrigir_input(request.form['cpf'])
+        senha = request.form['senha']
 
-    dados = models.login_user(email, cpf)
+        dados = models.login_user(email, cpf)
 
-    if dados is not None and check_password_hash(dados[2], senha):
-        session['user_id'] = dados[0]
-        return redirect(url_for('home', mensagem="Login realizado com sucesso!"))
-    else:
-        return render_template("log-in.html", mensagem="Parece que não existe um usuário com essas credenciais. Confira seus dados e tente novamente!")
+        if dados is not None and check_password_hash(dados[2], senha):
+            session['user_id'] = dados[0]
+            return redirect(url_for('home', mensagem="Login realizado com sucesso!"))
+        else:
+            return render_template("log-in.html", mensagem="Parece que não existe um usuário com essas credenciais. Confira seus dados e tente novamente!")
+    return render_template("log-in.html")
 
 # Perfil
 def perfil():
@@ -162,6 +166,9 @@ def produto(nome):
 
 # Salvar Produto
 def salvar_produtos(codigo):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
     user_id = session['user_id']
     quantidade = request.form['quant']
 
