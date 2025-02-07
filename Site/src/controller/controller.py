@@ -3,34 +3,78 @@ import datetime
 import src.models.models as models
 import src.etc.corrigir as corrigir
 from datetime import date
+from flask_paginate import Pagination
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 
+PER_PAGE = 8  # Quantidade de itens por página
+
 # Página Principal
-def listar_produtos(products, promocao):
+def listar_produtos(tipo, promocao):
+    page = request.args.get('page', 1, type=int)                     # Página atual, que por padrão será a primeira página
+    offset = (page - 1) * PER_PAGE                                   # Obtém os itens da página atual
     dados_produtos = []
-    for linha in products:
-        nome_produto = linha[0]
-        imagem_produto = base64.b64encode(linha[1]).decode('utf-8')
-        valor_produto = str(linha[2]).replace('.', ',')
-        avaliacao = float(linha[3]) if linha[3] else None
-        quant_aval = linha[4] if linha[4] else 0
 
-        produtos = {"nome": nome_produto,
-                    "foto": imagem_produto,
-                    "valor": valor_produto,
-                    "avaliacao": avaliacao,
-                    "quantidade": quant_aval}
+    if promocao == False:
+        produtos_lista = models.produtos_listagem(PER_PAGE, offset, tipo)   # Obter todos os produtos, com suas devidas informações
+        produtos_quant = models.quant_produtos(tipo)                        # Obter a quantidade de produtos diferentes cadastrados
 
-        if promocao == True: # Caso o produto esteja em promoção
-            produtos.update({
-                "desconto": str("{:.0f}".format(linha[3] * 100)),
-                "novo_valor": str("{:.2f}".format(linha[2] * (1 - linha[3]))).replace('.', ','),
-            })
+        for linha in produtos_lista:
+            nome = linha[0]
+            imagem = base64.b64encode(linha[1]).decode('utf-8')
+            valor = str(linha[2]).replace('.', ',')
+            avaliacao = float(linha[3]) if linha[3] else None
+            quant_aval = linha[4] if linha[4] else 0
 
-        dados_produtos.append(produtos)
+            produtos = {"nome": nome,
+                        "foto": imagem,
+                        "valor": valor,
+                        "avaliacao": avaliacao,
+                        "quantidade": quant_aval}
+            
+            dados_produtos.append(produtos)
 
-    return dados_produtos
+        pagination = Pagination(page=page, per_page=PER_PAGE, total=produtos_quant, css_framework='bootstrap3')
+        mensagem = request.args.get('mensagem', '')  # Extrai a mensagem da URL e a passa para o template home.html
+
+        if 'user_id' not in session:
+            return render_template("principal.html", products=dados_produtos, pagination=pagination, promo=False, mensagem=mensagem)
+
+        user = models.user_verification(session['user_id'])
+
+        return render_template("principal.html", products=dados_produtos, pagination=pagination, user=user[0], promo=False, mensagem=mensagem)
+    else:
+        produtos_lista = models.produtos_promocao(PER_PAGE, offset)   # Obter todos os produtos, com suas devidas informações
+        produtos_quant = models.quant_prod_promocao()                       # Obter a quantidade de produtos diferentes cadastrados
+
+        for linha in produtos_lista:
+            nome = linha[0]
+            imagem = base64.b64encode(linha[1]).decode('utf-8')
+            valor = str(linha[2]).replace('.', ',')
+            novo_valor = str("{:.2f}".format(linha[2] * (1 - linha[3]))).replace('.', ',')
+            desconto = str("{:.0f}".format(linha[3] * 100))
+            avaliacao = float(linha[3]) if linha[3] else None
+            quant_aval = linha[4] if linha[4] else 0
+
+            produtos = {"nome": nome,
+                        "foto": imagem,
+                        "valor": valor,
+                        "novo_valor": novo_valor,
+                        "desconto": desconto,
+                        "avaliacao": avaliacao,
+                        "quantidade": quant_aval}
+            
+            dados_produtos.append(produtos)
+
+        pagination = Pagination(page=page, per_page=PER_PAGE, total=produtos_quant, css_framework='bootstrap3')
+        mensagem = request.args.get('mensagem', '')  # Extrai a mensagem da URL e a passa para o template home.html
+
+        if 'user_id' not in session:
+            return render_template("principal.html", products=dados_produtos, pagination=pagination, promo=True, mensagem=mensagem)
+
+        user = models.user_verification(session['user_id'])
+
+        return render_template("principal.html", products=dados_produtos, pagination=pagination, user=user[0], promo=True, mesagem=mensagem)
 
 # Sig-up
 def sigup():

@@ -15,7 +15,6 @@ def user_verification(user_id):
 
 def produtos_listagem(per_page, offset, tipo):
     conexao, cursor = db.conexao()
-    promocao = False
 
     if tipo != False:
         try:
@@ -32,7 +31,7 @@ def produtos_listagem(per_page, offset, tipo):
             cursor.close()
             conexao.close()
 
-    return controller.listar_produtos(linhas, promocao)
+    return linhas
 
 def quant_produtos(tipo):
     conexao, cursor = db.conexao()
@@ -55,7 +54,6 @@ def quant_produtos(tipo):
 
 def produtos_promocao(per_page, offset):
     conexao, cursor = db.conexao()
-    promocao = True
     try:
         cursor.execute("SELECT produtos.nome, produtos.imagem, produtos.valor, promocao.desconto, AVG(avaliacao.nota), COUNT(avaliacao.nota) FROM produtos JOIN promocao ON produtos.cod = promocao.cod_produtos JOIN compra ON compra.cod_produtos = produtos.cod LEFT JOIN avaliacao ON avaliacao.compra_cod = compra.cod_compra GROUP BY produtos.nome, produtos.imagem, produtos.valor, promocao.desconto ORDER BY valor DESC LIMIT %s OFFSET %s;", (per_page, offset))
         linhas = cursor.fetchall()
@@ -63,7 +61,7 @@ def produtos_promocao(per_page, offset):
         cursor.close()
         conexao.close()
 
-    return controller.listar_produtos(linhas, promocao)
+    return linhas
 
 def quant_prod_promocao():
     conexao, cursor = db.conexao()

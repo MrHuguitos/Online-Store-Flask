@@ -1,12 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
-from flask_paginate import Pagination
 import os
 import src.models.models as models
 import src.dbconfig.dbconfig as db
 import src.etc.corrigir as corrigir
 import src.controller.controller as controller
-
-PER_PAGE = 8  # Quantidade de itens por página
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'defaultsecret')
@@ -14,57 +11,17 @@ app.secret_key = os.getenv('SECRET_KEY', 'defaultsecret')
 
 @app.route('/home')  # Página Principal
 def home():
-    page = request.args.get('page', 1, type=int)  # Página atual, que por padrão será a primeira página
-    offset = (page - 1) * PER_PAGE  # Obtém os itens da página atual
-    
-    produtos_lista = models.produtos_listagem(PER_PAGE, offset, False)  # Obter todos os produtos, com suas devidas informações
-    produtos_quant = models.quant_produtos(False) # Obter a quantidade de produtos diferentes cadastrados
-
-    pagination = Pagination(page=page, per_page=PER_PAGE, total=produtos_quant, css_framework='bootstrap3')  # Configuração da paginação
-    mensagem = request.args.get('mensagem', '')  # Extrai a mensagem da URL e a passa para o template home.html
-
-    if 'user_id' not in session:
-        return render_template("principal.html", products=produtos_lista, pagination=pagination, promo=False, mensagem=mensagem)
-
-    user = models.user_verification(session['user_id'])
-
-    return render_template("principal.html", products=produtos_lista, pagination=pagination, user=user[0], promo=False, mensagem=mensagem)
+    return controller.listar_produtos(False, False)
 
 
 @app.route('/home/<tipo>', methods=['GET']) # Página com os produtos de cada categoria
 def home_product(tipo):
-    page = request.args.get('page', 1, type=int) # Página atual (por padrão, será a primeira página)
-    offset = (page - 1) * PER_PAGE  # Obtém os itens da página atual
-
-    produtos_lista = models.produtos_listagem(PER_PAGE, offset, tipo)  # Obter todos os produtos, com suas devidas informações
-    produtos_quant = models.quant_produtos(tipo)  # Obter a quantidade de produtos diferentes cadastrados
-
-    pagination = Pagination(page=page, per_page=PER_PAGE, total=produtos_quant, css_framework='bootstrap3')  # Configuração da paginação
-
-    if 'user_id' not in session:
-        return render_template("principal.html", products=produtos_lista, pagination=pagination, promo=False)
-
-    user = models.user_verification(session['user_id'])
-
-    return render_template("principal.html", products=produtos_lista, pagination=pagination, user=user[0], promo=False)
+    return controller.listar_produtos(tipo, False)
 
 
 @app.route('/promocoes', methods=['GET'])   # Página com as promoções
 def promocoes():
-    page = request.args.get('page', 1, type=int)  # Página atual (por padrão, será a primeira página)
-    offset = (page - 1) * PER_PAGE  # Obtém os itens da página atual
-    
-    produtos_lista = models.produtos_promocao(PER_PAGE, offset)  # Obter todos os produtos, com suas devidas informações
-    produtos_quant = models.quant_prod_promocao()  # Obter a quantidade de produtos diferentes cadastrados
-
-    pagination = Pagination(page=page, per_page=PER_PAGE, total=produtos_quant, css_framework='bootstrap3')  # Configuração da paginação
-
-    if 'user_id' not in session:
-        return render_template("principal.html", products=produtos_lista, pagination=pagination, promo=True)
-
-    user = models.user_verification(session['user_id'])
-
-    return render_template("principal.html", products=produtos_lista, pagination=pagination, user=user[0], promo=True)
+    return controller.listar_produtos(False, True)
 
 
 @app.route('/sign-up', methods=['GET', 'POST'])  # Cadastro de usuários
